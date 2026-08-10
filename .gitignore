@@ -1,0 +1,31 @@
+# --- Local / privado (no subir a repos públicos) ---
+# Material con copyright: PDF del Manual del Jugador 2024 y HTMLs scrapeados
+# de aidedd.org (los datos derivados en pool.json/spells_ficha_web.json SÍ son
+# inputs necesarios del build; revisa su licencia antes de un push público)
+referencias/Manual del Jugador 2024.pdf
+referencias/aided/
+
+# --- Artefactos del build ---
+tests/_out/
+*.pool_tmp
+*.info_tmp
+
+# --- Datos intermedios de scraping (regenerables, no son inputs del build) ---
+referencias/spells_txt/all_*.txt
+referencias/spells_txt/pages.json
+referencias/spells_txt/spells_parsed.json
+referencias/spells_txt/_nombres.txt
+
+# --- Capturas y versiones locales ---
+_shots/
+versiones/
+
+# --- Estado del asistente / herramientas ---
+.claude/
+.hermes-sessions/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/

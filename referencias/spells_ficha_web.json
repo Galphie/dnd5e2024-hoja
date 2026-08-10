@@ -1,0 +1,324 @@
+[
+ {
+  "ficha": "Rayo de Fuego",
+  "slug": "descarga-de-fuego",
+  "descripcion_larga": "Lanzas una mota de fuego a una criatura u objeto dentro del alcance. Realiza un ataque de conjuro a distancia contra el objetivo. Si acierta, el objetivo recibe 1d10 de daño de fuego. Un objeto inflamable alcanzado por este conjuro empieza a arder si nadie lo lleva. Mejora de truco. El daño aumenta en 1d10 al alcanzar los niveles 5 (2d10), 11 (3d10) y 17 (4d10).",
+  "pagina": 270,
+  "metadatos": "Evocación de nivel 0 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "DESCARGA DE FUEGO"
+ },
+ {
+  "ficha": "Mano de Mago",
+  "slug": "mano-de-mago",
+  "descripcion_larga": "Una mano espectral y flotante aparece en un punto que elijas dentro del alcance. La mano dura mientras dura el conjuro. Desaparece si se encuentra a más de 9 metros de ti o si vuelves a lanzar este conjuro. Al lanzar el conjuro, puedes usar la mano para manipular un objeto, abrir una puerta o un contenedor sin llave, guardar o recuperar un objeto de un contenedor abierto o vaciar el contenido de un vial. Como acción de magia en tus siguientes turnos, puedes volver a controlar la mano. Como parte de esa acción, puedes mover la mano hasta 9 metros. La mano no puede atacar, activar objetos mágicos ni cargar más de 5 kg.",
+  "pagina": 310,
+  "metadatos": "Conjuración de nivel 0 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "MANO DE MAGO"
+ },
+ {
+  "ficha": "Prestidigitación",
+  "slug": "prestidigitacion",
+  "descripcion_larga": "Creas un efecto mágico dentro del alcance. Elige el efecto entre las opciones a continuación. Si lanzas este conjuro varias veces, puedes tener activos hasta tres de sus efectos no instantáneos a la vez. Efecto Sensorial. Creas un efecto sensorial instantáneo e inofensivo, como una lluvia de chispas, una ráfaga de viento, tenues notas musicales o un olor extraño. Juego con fuego. Enciendes o apagas instantáneamente una vela, una antorcha o una pequeña fogata. Limpiar o ensuciar. Limpias o ensucias instantáneamente un objeto de no más 0,03 m3 (30 litros). Sensación menor. Enfrías, calientas o aromatizas hasta un volumen de 0,03 m3 (30 litres) de material inerte durante 1 hora. Marca mágica. Haces que un color, una pequeña marca o un símbolo aparezcan en un objeto o superficie durante 1 hora. Creación menor. Creas un abalorio no mágico o una imagen ilusoria que cabe en tu mano. Dura hasta el final de tu siguiente turno. Un abalorio no inflige daño ni tiene valor monetario.",
+  "pagina": 323,
+  "metadatos": "Transmutación de nivel 0 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "PRESTIDIGITACIÓN"
+ },
+ {
+  "ficha": "Luz",
+  "slug": "luz",
+  "descripcion_larga": "Tocas un objeto Grande o más pequeño que no lleve nadie. Hasta que el conjuro termine, el objeto emite Luz brillante en un radio de 6 metros y Luz tenue en otros 6 metros. La luz puede colorearse como quieras. Cubrir el objeto con algo opaco bloquea la luz. El conjuro termina si lo vuelves a lanzar.",
+  "pagina": 308,
+  "metadatos": "Evocación de nivel 0 (bardo, clérigo, hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "Luz"
+ },
+ {
+  "ficha": "Ráfaga de Hechicero",
+  "slug": "estallido-magico",
+  "descripcion_larga": "Lanzas energía hechicera a una criatura u objeto dentro del alcance. Realiza una tirada de ataque a distancia contra el objetivo. Si acierta, el objetivo recibe 1d8 de daño de un tipo que elijas: ácido, frío, fuego, relámpago, veneno, psíquico o trueno. Si sacas un 8 en un d8 de este conjuro, puedes tirar otro d8 y añadirlo al daño. Al lanzar este conjuro, el número máximo de estos d8 que puedes añadir al daño del conjuro es igual a tu modificador por aptitud mágica. Mejora de truco. Este daño aumenta en 1d8 al alcanzar el nivel 5 (2d8), 11 (3d8) y 17 (4d8).",
+  "pagina": 283,
+  "metadatos": "Evocación de nivel 0 (hechicero)",
+  "coincide_nombre": true,
+  "nombre_pool": "ESTALLIDO MÁGICO"
+ },
+ {
+  "ficha": "Toque Gélido",
+  "slug": "toque-helado",
+  "descripcion_larga": "Canalizando el frío de la tumba, realiza un ataque de conjuro cuerpo a cuerpo contra un objetivo a tu alcance. Si acierta, el objetivo recibe 1d10 de daño necrótico y no puede recuperar puntos de golpe hasta el final de tu siguiente turno. Mejora de truco. El daño aumenta en 1d10 al alcanzar los niveles 5 (2d10), 11 (3d10) y 17 (4d10).",
+  "pagina": 340,
+  "metadatos": "Nigromancia de nivel 0 (hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "TOQUE HELADO"
+ },
+ {
+  "ficha": "Descarga de Cuchillos",
+  "slug": "",
+  "descripcion_larga": "",
+  "pagina": null,
+  "metadatos": "",
+  "coincide_nombre": false
+ },
+ {
+  "ficha": "Chasquido Atronador",
+  "slug": "tronar",
+  "descripcion_larga": "Cada criatura en una Emanación de 1,50 metros que se origine de ti debe superar una tirada de salvación de Constitución o recibir 1d6 de daño de trueno. El sonido atronador del conjuro se puede oír hasta a 30 metros de distancia. Mejora de truco. El daño aumenta en 1d6 al alcanzar los niveles 5 (2d6), 11 (3d6) y 17 (4d6).",
+  "pagina": 343,
+  "metadatos": "Evocación de nivel 0 (bardo, druida, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "TRONAR"
+ },
+ {
+  "ficha": "Luces Danzantes",
+  "slug": "luces-danzantes",
+  "descripcion_larga": "Creas hasta cuatro luces del tamaño de una antorcha dentro del alcance, haciéndolas parecer antorchas, linternas u orbes brillantes que flotan mientras dura el conjuro. Como alternativa, combinas las cuatro luces en una forma Mediana brillante con una vaga apariencia humana. Sea cual sea la forma que elijas, cada luz emite Luz tenue en un radio de 3 metros. Con una acción bonus, puedes mover las luces hasta 18 metros a un espacio dentro del alcance. Una luz debe estar a menos de 6 metros de otra luz creada por este conjuro, y una luz se desvanece si excede el alcance del conjuro.",
+  "pagina": 308,
+  "metadatos": "Ilusionismo de nivel 0 (bardo, hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "LUCES DANZANTES"
+ },
+ {
+  "ficha": "Mensaje",
+  "slug": "mensaje",
+  "descripcion_larga": "Apuntas a una criatura dentro del alcance y susurras un mensaje. El objetivo (y solo él) escucha el mensaje y puede responder con un susurro que solo tú puedes oír. Puedes lanzar este conjuro a través de objetos sólidos si conoces al objetivo y sabes que está más allá de la barrera. Un silencio mágico, 30 cm de piedra, metal o madera, o una fina lámina de plomo bloquean el conjuro.",
+  "pagina": 312,
+  "metadatos": "Transmutación de nivel 0 (bardo, druida, hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "MENSAJE"
+ },
+ {
+  "ficha": "Ilusión Menor",
+  "slug": "ilusion-menor",
+  "descripcion_larga": "Creas un sonido o una imagen de un objeto dentro del alcance que dura mientras dura el conjuro. Consulta las descripciones a continuación para conocer los efectos de cada uno. La ilusión termina si vuelves a lanzar este conjuro. Si una criatura toma una acción de estudiar para examinar el sonido o la imagen, puede determinar que es una ilusión con una prueba de Inteligencia (Investigación) exitosa contra tu CD de salvación de conjuros. Si una criatura percibe la ilusión, esta se desvanece para ella. Sonido. Si creas un sonido, su volumen puede variar desde un susurro hasta un grito. Puede ser tu voz, la de otra persona, el rugido de un león, el redoble de tambores o cualquier otro sonido que elijas. El sonido continúa ininterrumpido durante toda la duración del conjuro, o puedes crear sonidos discretos en diferentes momentos antes de que termine. Imagen. Si creas la imagen de un objeto (como una silla, pisadas embarradas o un pequeño cofre), esta no debe ser mayor que un Cubo de 1,50 metros de lado. La imagen no puede crear sonido, luz, olor ni ningún otro efecto sensorial. La interacción física con ella revela que es una ilusión, ya que las cosas pueden atravesarla.",
+  "pagina": 294,
+  "metadatos": "Ilusionismo de nivel 0 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ILUSIÓN MENOR"
+ },
+ {
+  "ficha": "Rociada Venenosa",
+  "slug": "rociada-venenosa",
+  "descripcion_larga": "Rocías una niebla tóxica contra una criatura dentro del alcance. Realizas un ataque de conjuro a distancia contra el objetivo. Si acierta, el objetivo recibe 1d12 de daño de veneno. Mejora de truco. El daño aumenta en 1d12 al alcanzar los niveles 5 (2d12), 11 (3d12) y 17 (4d12).",
+  "pagina": 332,
+  "metadatos": "Nigromancia de nivel 0 (druida, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ROCIADA VENENOSA"
+ },
+ {
+  "ficha": "Rayo de Escarcha",
+  "slug": "rayo-de-escarcha",
+  "descripcion_larga": "Un rayo gélido de luz azul blanquecina se dirige hacia una criatura dentro del alcance. Realiza un ataque de conjuro a distancia contra el objetivo. Si acierta, recibe 1d8 de daño de frío y su velocidad se reduce en 3 metros hasta el comienzo de tu siguiente turno. Mejora de truco. El daño aumenta en 1d8 al alcanzar los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
+  "pagina": 327,
+  "metadatos": "Evocación de nivel 0 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "RAYO DE ESCARCHA"
+ },
+ {
+  "ficha": "Salvajismo",
+  "slug": "",
+  "descripcion_larga": "",
+  "pagina": null,
+  "metadatos": "",
+  "coincide_nombre": false
+ },
+ {
+  "ficha": "Burla Cruel",
+  "slug": "burla-danina",
+  "descripcion_larga": "Lanzas una serie de insultos, con sutiles encantamientos, contra una criatura que puedas ver u oír dentro del alcance. El objetivo debe superar una tirada de salvación de Sabiduría o recibir 1d6 de daño psíquico y tener Desventaja en la siguiente tirada de ataque que realice antes del final de tu siguiente turno. Mejora de truco. El daño aumenta en 1d6 al alcanzar el nivel 5 (2d6), el nivel 11 (3d6) y el nivel 17 (4d6).",
+  "pagina": 252,
+  "metadatos": "Encantamiento de nivel 0 (bardo)",
+  "coincide_nombre": true,
+  "nombre_pool": "BURLA DAÑINA"
+ },
+ {
+  "ficha": "Descarga Eléctrica",
+  "slug": "agarre-electrizante",
+  "descripcion_larga": "Un rayo surge de ti hacia una criatura que intentas tocar. Realiza un ataque de conjuro cuerpo a cuerpo contra el objetivo. Si acierta, el objetivo recibe 1d8 de daño de relámpago y no puede realizar ataques de oportunidad hasta el comienzo de tu siguiente turno. Mejora de truco. El daño aumenta en 1d8 al alcanzar los niveles 5 (2d8), 11 (3d8) y 17 (4d8).",
+  "pagina": 241,
+  "metadatos": "Evocación de nivel 0 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "AGARRE ELECTRIZANTE"
+ },
+ {
+  "ficha": "Estabilizar",
+  "slug": "piedad-con-los-moribundos",
+  "descripcion_larga": "Elige una criatura dentro del alcance que tenga 0 puntos de golpe y que no esté muerta. La criatura se vuelve estable. Mejora de truco. El alcance se duplica al alcanzar los niveles 5 (9 metros), 11 (18 metros) y 17 (36 metros).",
+  "pagina": 321,
+  "metadatos": "Nigromancia de nivel 0 (clérigo, druida)",
+  "coincide_nombre": true,
+  "nombre_pool": "PIEDAD CON LOS MORIBUNDOS"
+ },
+ {
+  "ficha": "Escudo",
+  "slug": "escudo",
+  "descripcion_larga": "Una barrera imperceptible de fuerza mágica te protege. Hasta el comienzo de tu siguiente turno, tienes un bonificador de +5 a la CA, incluso contra el ataque desencadenante, y no recibes daño de proyectil mágico.",
+  "pagina": 280,
+  "metadatos": "Abjuración de nivel 1 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ESCUDO"
+ },
+ {
+  "ficha": "Orbe Cromático",
+  "slug": "orbe-cromatico",
+  "descripcion_larga": "Lanzas un orbe de energía a un objetivo dentro del alcance. Elige ácido, frío, fuego, relámpago, veneno o trueno como tipo de orbe que crees y realiza un ataque de conjuro a distancia contra el objetivo. Si cierta, el objetivo recibe 3d8 de daño del tipo elegido. Si obtienes el mismo número en dos o más d8, el orbe salta a un objetivo diferente de tu elección en un radio de 9 metros del objetivo. Realiza una tirada de ataque contra el nuevo objetivo y una nueva tirada de daño. El orbe no puede volver a saltar a menos que lances el conjuro con un espacio de conjuro de nivel 2 o superior. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d8 por cada nivel de espacio de conjuro superior a 1. El orbe puede saltar un número máximo de veces igual al nivel del espacio gastado, y una criatura solo puede ser objetivo una vez por cada lanzamiento de este conjuro.",
+  "pagina": 317,
+  "metadatos": "Evocación de nivel 1 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ORBE CROMÁTICO"
+ },
+ {
+  "ficha": "Llamarada",
+  "slug": "manos-ardientes",
+  "descripcion_larga": "Una fina cortina de llamas sale disparada de ti. Cada criatura en un Cono de 4,50 metros realiza una tirada de salvación de Destreza, recibiendo 3d6 de daño de fuego si falla o la mitad si la supera. Los objetos inflamables en el cono que no se llevan puestos empiezan a arder. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d6 por cada nivel de espacio de conjuro superior a 1.",
+  "pagina": 310,
+  "metadatos": "Evocación de nivel 1 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "MANOS ARDIENTES"
+ },
+ {
+  "ficha": "Proyectil Mágico",
+  "slug": "proyectil-magico",
+  "descripcion_larga": "Creas tres dardos brillantes de fuerza mágica. Cada dardo impacta a una criatura de tu elección que puedas ver dentro del alcance. Un dardo inflige 1d4 + 1 de daño de fuerza a su objetivo. Los dardos impactan simultáneamente y puedes dirigirlos para que impacten a una o varias criaturas. Con un espacio de conjuro de nivel superior. El conjuro crea un dardo adicional por cada nivel de espacio de conjuro superior a 1.",
+  "pagina": 325,
+  "metadatos": "Evocación de nivel 1 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "PROYECTIL MÁGICO"
+ },
+ {
+  "ficha": "Armadura de Mago",
+  "slug": "armadura-de-mago",
+  "descripcion_larga": "Tocas a una criatura voluntaria que no lleva armadura. Hasta que el conjuro termine, la CA base del objetivo es de 13 más su modificador por Destreza. El conjuro termina antes si el objetivo se pone una armadura.",
+  "pagina": 247,
+  "metadatos": "Abjuración de nivel 1 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ARMADURA DE MAGO"
+ },
+ {
+  "ficha": "Comprender Idiomas",
+  "slug": "entender-idiomas",
+  "descripcion_larga": "Hasta que termine el conjuro, comprendes el significado literal de cualquier idioma que escuches o veas en señas. También comprendes cualquier idioma escrito que veas, pero debes tocar la superficie donde están escritas las palabras. Leer una página de texto toma aproximadamente un minuto. Este conjuro no decodifica símbolos ni mensajes secretos.",
+  "pagina": 280,
+  "metadatos": "Adivinación de nivel 1 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "ENTENDER IDIOMAS"
+ },
+ {
+  "ficha": "Detectar Magia",
+  "slug": "detectar-magia",
+  "descripcion_larga": "Hasta que termine el conjuro, percibes la presencia de efectos mágicos en un rayo de 9 metros. Si percibes dichos efectos, puedes tomar la acción de magia para ver un aura tenue alrededor de cualquier criatura u objeto visible en el área que contenga la magia. Si un efecto fue creado por un conjuro, sabes la escuela de magia del conjuro. El conjuro no puede atravesar 30 cm de piedra, tierra o madera, 2,50 cm de metal, o una fina lámina de plomo.",
+  "pagina": 272,
+  "metadatos": "Adivinación de nivel 1 (bardo, clérigo, druida, paladín, explorador, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "DETECTAR MAGIA"
+ },
+ {
+  "ficha": "Retirada Expeditiva",
+  "slug": "retirada-expeditiva",
+  "descripcion_larga": "Tomas la acción de correr y, hasta que el conjuro termine, puedes realizar esa acción nuevamente como acción bonus.",
+  "pagina": 331,
+  "metadatos": "Transmutación de nivel 1 (hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "RETIRADA EXPEDITIVA"
+ },
+ {
+  "ficha": "Paso Brumoso",
+  "slug": "paso-brumoso",
+  "descripcion_larga": "Rodeado brevemente por una niebla plateada, te teletransportas hasta 9 metros a un espacio desocupado que puedas ver.",
+  "pagina": 320,
+  "metadatos": "Conjuración de nivel 2 (hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "PASO BRUMOSO"
+ },
+ {
+  "ficha": "Rayo Abrasador",
+  "slug": "rayo-abrasador",
+  "descripcion_larga": "Lanzas tres rayos ígneos. Puedes lanzarlos contra un objetivo dentro del alcance o varios. Realizas un ataque de conjuro a distancia por cada rayo. Si acierta, el objetivo recibe 2d6 de daño de fuego. Con un espacio de conjuro de nivel superior. Creas un rayo adicional por cada nivel de espacio de conjuro superior a 2.",
+  "pagina": 326,
+  "metadatos": "Evocación de nivel 2 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "RAYO ABRASADOR"
+ },
+ {
+  "ficha": "Invisibilidad",
+  "slug": "invisibilidad",
+  "descripcion_larga": "Una criatura que toques tendrá el estado de Invisible hasta que el conjuro termine. El conjuro termina antes de tiempo si el objetivo realice una tirada de ataque, inflija daño o lance un conjuro. Con un espacio de conjuro de nivel superior. Puedes seleccionar una criatura adicional por cada nivel de espacio de conjuro superior a 2.",
+  "pagina": 297,
+  "metadatos": "Ilusionismo de nivel 2 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "INVISIBILIDAD"
+ },
+ {
+  "ficha": "Sugestión",
+  "slug": "sugestion",
+  "descripcion_larga": "Sugieres una actividad (descrita en no más de 25 palabras) a una criatura que puedas ver dentro del alcance y que pueda oírte y entenderte. La sugerencia debe parecer factible y no implicar nada que obviamente cause daño al objetivo o a sus aliados. Por ejemplo, podrías decir \"Trae la llave de la bóveda del tesoro del culto y dámela\". O podrías decir \"Deja de luchar, abandona esta biblioteca pacíficamente y no regreses\". El objetivo debe superar una tirada de salvación de Sabiduría o tener el estado de Hechizado hasta que termine el conjuro o hasta que tú o tus aliados le inflijan daño. El objetivo hechizado realiza la sugerencia lo mejor que puede. La actividad sugerida puede continuar durante toda la duración, pero si puede completarse en menos tiempo, el conjuro termina para el objetivo al completarla.",
+  "pagina": 336,
+  "metadatos": "Encantamiento de nivel 2 (bardo, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "SUGESTIÓN"
+ },
+ {
+  "ficha": "Añicos",
+  "slug": "hacer-avicos",
+  "descripcion_larga": "Un fuerte ruido surge desde un punto de tu elección dentro del alcance. Cada criatura en una Esfera de 3 metros de radio centrada en este punto realiza una tirada de salvación de Constitución, recibiendo 3d8 de daño de trueno si falla o la mitad si la supera. Un autómata tiene Desventaja en la tirada de salvación. Un objeto no mágico que no es llevado por nadie también recibe el daño si está en el área del conjuro. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d8 por cada nivel de espacio de conjuro superior a 2.",
+  "pagina": 292,
+  "metadatos": "Evocación de nivel 2 (bardo, hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "HACER AÑICOS"
+ },
+ {
+  "ficha": "Bola de Fuego",
+  "slug": "bola-de-fuego",
+  "descripcion_larga": "Un rayo brillante surge de ti hacia un punto que elijas dentro del alcance y luego estalla con un rugido sordo en una explosión ardiente. Cada criatura en una Esfera de 6 metros de radio centrada en ese punto realiza una tirada de salvación de Destreza, recibiendo 8d6 de daño de fuego si falla o la mitad si la supera. Los objetos inflamables en el área que no se lleve nadie empiezan a arder. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d6 por cada nivel de espacio de conjuro superior a 3.",
+  "pagina": 251,
+  "metadatos": "Evocación de nivel 3 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "BOLA DE FUEGO"
+ },
+ {
+  "ficha": "Volar",
+  "slug": "volar",
+  "descripcion_larga": "Tocas a una criatura voluntaria. Hasta que termine el conjuro, el objetivo obtiene una velocidad volando de 18 metros y puede levitar. Al terminar, el objetivo cae si aún está en el aire, a menos que pueda detener la caída. Con un espacio de conjuro de nivel superior. Puedes seleccionar una criatura adicional por cada nivel de espacio de conjuro superior a 3.",
+  "pagina": 345,
+  "metadatos": "Transmutación de nivel 3 (hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "VOLAR"
+ },
+ {
+  "ficha": "Contrahechizo",
+  "slug": "contrahechizo",
+  "descripcion_larga": "Intentas interrumpir a una criatura mientras lanza un conjuro. La criatura debe realizar una tirada de salvación de Constitución. Si falla, el conjuro se disipa sin efecto y la acción, acción bonus o reacción usada para lanzarlo se desperdicia. Si ese conjuro se lanzó con un espacio de conjuro, este no se gasta.",
+  "pagina": 265,
+  "metadatos": "Abjuración de nivel 3 (hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "CONTRAHECHIZO"
+ },
+ {
+  "ficha": "Relámpago",
+  "slug": "relampago",
+  "descripcion_larga": "Un rayo que forma una Línea de 30 metros de largo y 1,50 metros de ancho sale disparado desde ti en la dirección que elijas. Cada criatura en la Línea realiza una tirada de salvación de Destreza y recibe 8d6 de daño de relámpago si falla o la mitad si la supera. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d6 por cada nivel de espacio de conjuro superior a 3.",
+  "pagina": 329,
+  "metadatos": "Evocación de nivel 3 (hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "RELÁMPAGO"
+ },
+ {
+  "ficha": "Disipar Magia",
+  "slug": "disipar-magia",
+  "descripcion_larga": "Elige una criatura, objeto o efecto mágico dentro del alcance. Cualquier conjuro activo de nivel 3 o inferior sobre el objetivo termina. Por cada conjuro activo de nivel 4 o superior sobre el objetivo, realiza una prueba de característica usando tu aptitud mágica (CD 10 más el nivel de ese conjuro). Si superas le tirada, el conjuro finaliza. Con un espacio de conjuro de nivel superior. Disipas automáticamente un conjuro sobre el objetivo si su nivel es igual o inferior al nivel del espacio de conjuro que usas.",
+  "pagina": 275,
+  "metadatos": "Abjuración de nivel 3 (bardo, clérigo, druida, paladín, explorador, hechicero, brujo, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "DISIPAR MAGIA"
+ },
+ {
+  "ficha": "Muro de Fuego",
+  "slug": "muro-de-fuego",
+  "descripcion_larga": "Creas un muro de fuego sobre una superficie sólida dentro del alcance. Puedes construir el muro de hasta 18 metros de largo, 6 metros de alto y 30 cm de grosor, o un muro anillado de hasta 6 metros de diámetro, 6 metros de alto y 30 cm de grosor. El muro es opaco y dura hasta que termine el conjuro. Cuando el muro aparece, cada criatura en su área realiza una tirada de salvación de Destreza, recibiendo 5d8 de daño de fuego si falla o la mitad si tiene éxito. Un lado del muro, seleccionado por ti al lanzar este conjuro, inflige 5d8 de daño de fuego a cada criatura que termine su turno a 3 metros o menos de ese lado o dentro del muro. Una criatura recibe el mismo daño cuando entra en el muro por primera vez en un turno o termina su turno allí. El otro lado del muro no inflige daño. Con un espacio de conjuro de nivel superior. El daño aumenta en 1d8 por cada nivel de espacio de conjuro superior a 4.",
+  "pagina": 313,
+  "metadatos": "Evocación de nivel 4 (druida, hechicero, mago)",
+  "coincide_nombre": true,
+  "nombre_pool": "MURO DE FUEGO"
+ }
+]
