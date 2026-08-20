@@ -230,11 +230,11 @@ body{
 .spell{left:30px;top:230px;width:510px;height:905px}
 .spin{position:absolute;top:22px;left:0;right:2px;bottom:4px}
 .sp-hd,.srow{display:grid;grid-template-columns:42px 150px 68px 58px 72px 1fr}
+.srow::before{content:"";position:absolute;top:0;bottom:0;left:-18px;width:18px}
+.srow::after{content:"";position:absolute;top:0;bottom:0;right:-18px;width:18px}
 .sp-hd{border-bottom:1.5px solid #6b5837}
 .sp-hd span{font-size:7.5px;font-weight:700;color:#3a2c14;padding:3px 4px 4px;line-height:1.05}
 .srow{border-bottom:1px solid #c4b896;min-height:23px;align-items:center;position:relative}
-.srow::before{content:"";position:absolute;top:0;bottom:0;left:-18px;width:18px}
-.srow::after{content:"";position:absolute;top:0;bottom:0;right:-18px;width:18px}
 .srow input:nth-child(1),.srow input:nth-child(3),.srow input:nth-child(4){text-align:center}
 .srow input{width:100%;font-size:8px;border:none;outline:none;background:transparent;color:#1a1208;font-family:inherit}
 .sp-ins{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
@@ -445,7 +445,7 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
     <div class="skl"><label class="sk"><input type="checkbox" class="dot E"><span class="bon"></span><span class="nm">Salvación</span></label>
       <label class="sk"><input type="checkbox" class="dot E"><span class="bon"></span><span class="nm">Atletismo</span></label></div>
   </div>
-  <div class="ab ab-de" data-ab="DEX"><div class="lab">DESTREZA</div>
+  <div class="ab ab-de" data-ab="DES"><div class="lab">DESTREZA</div>
     <div class="circle"><span class="m"></span></div><div class="score"><input class="E sc" type="number" value="12"></div>
     <div class="lbls"><span class="lm">MODIFICADOR</span><span class="lps">PUNTUACIÓN</span></div>
     <div class="skl"><label class="sk"><input type="checkbox" class="dot E"><span class="bon"></span><span class="nm">Salvación</span></label>
