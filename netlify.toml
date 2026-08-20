@@ -1,0 +1,31 @@
+# Netlify config para Ficha D&D 2024
+# Sirve estáticos desde resultado-hermes/
+
+[build]
+  publish = "resultado-hermes"
+  command = "echo 'Static site — no build step'"
+
+# Headers para PWA
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Service-Worker-Allowed = "/"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML sin cache agresivo (para que coja SW nuevo)
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# SPA fallback (no aplica, pero por si acaso)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
