@@ -9,10 +9,11 @@ Uso:  python _assemble.py            (usa ruta por defecto)
 Requiere: _build_pool.py y _build_info.py ejecutados antes (generan .pool_tmp/.info_tmp).
 Idempotente: si el HTML ya tiene un parche aplicado, lo salta sin romper.
 """
-import json, os, re, sys
+import json, os, re, sys, shutil
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTML = os.environ.get("FICHA_HTML", os.path.join(BASE, "resultado-hermes", "ficha_dnd_hermes.html"))
+OUT_DIR = os.path.dirname(HTML)
 
 pool_js = open(HTML + ".pool_tmp", encoding="utf-8").read().strip()
 info_js = open(HTML + ".info_tmp", encoding="utf-8").read().strip()
@@ -158,3 +159,51 @@ else:
 
 open(HTML, "w", encoding="utf-8").write(html)
 print("HTML final bytes:", len(html.encode("utf-8")))
+
+# ---- PWA: inyectar manifest + SW registration ----
+def inject_pwa(html_text):
+    """Inyecta <link rel=manifest> y registro de SW en el <head>."""
+    # 1. manifest link
+    manifest_link = '<link rel="manifest" href="manifest.json">'
+    if manifest_link not in html_text:
+        html_text = html_text.replace('<head>', '<head>\n' + manifest_link)
+    
+    # 2. SW registration script (inline, al final del head)
+    sw_reg = '''
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>'''
+    if 'serviceWorker.register' not in html_text:
+        html_text = html_text.replace('</head>', sw_reg + '\n</head>')
+    
+    # 3. meta theme-color (para Chrome/Android)
+    meta_theme = '<meta name="theme-color" content="#6b5837">'
+    if meta_theme not in html_text:
+        html_text = html_text.replace('<head>', '<head>\n' + meta_theme)
+    
+    # 4. apple-mobile-web-app capable (iOS PWA hints)
+    apple_meta = '''<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="D&D 2024">'''
+    if 'apple-mobile-web-app-capable' not in html_text:
+        html_text = html_text.replace('<head>', '<head>\n' + apple_meta)
+    
+    return html_text
+
+html = inject_pwa(html)
+open(HTML, "w", encoding="utf-8").write(html)
+print("[OK] PWA manifest + SW registration inyectado")
+
+# Copiar manifest.json y sw.js al directorio de salida
+for asset in ("manifest.json", "sw.js"):
+    src = os.path.join(BASE, "referencias", asset)
+    dst = os.path.join(OUT_DIR, asset)
+    if os.path.exists(src):
+        shutil.copy2(src, dst)
+        print(f"[OK] {asset} -> {dst}")
+    else:
+        print(f"[WARN] {asset} no encontrado en referencias/")

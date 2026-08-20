@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="D&D 2024">
+<meta name="theme-color" content="#6b5837">
+<link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
 <title>Nake Nicky — Ficha D&amp;D 2024</title>
 <style>
@@ -375,6 +380,14 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
 .mdl-f a{color:#9a3a2a;text-decoration:none;font-family:inherit;font-size:10px;font-weight:700}
 .mdl-f a:hover{text-decoration:underline}
 </style>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
 </head>
 <body>
 
