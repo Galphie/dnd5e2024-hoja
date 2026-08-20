@@ -5,6 +5,9 @@
 referencias/Manual del Jugador 2024.pdf
 referencias/aided/
 
+# --- Personajes creados ---
+personajes/
+
 # --- Artefactos del build ---
 tests/_out/
 *.pool_tmp
