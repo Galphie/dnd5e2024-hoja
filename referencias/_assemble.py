@@ -15,6 +15,17 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTML = os.environ.get("FICHA_HTML", os.path.join(BASE, "resultado-hermes", "ficha_dnd_hermes.html"))
 OUT_DIR = os.path.dirname(HTML)
 
+# Read version from package.json
+pkg_path = os.path.join(BASE, "package.json")
+VERSION = "0.1.0"
+if os.path.exists(pkg_path):
+    try:
+        with open(pkg_path, encoding="utf-8") as f:
+            pkg = json.load(f)
+            VERSION = pkg.get("version", "0.1.0")
+    except Exception:
+        pass
+
 pool_js = open(HTML + ".pool_tmp", encoding="utf-8").read().strip()
 info_js = open(HTML + ".info_tmp", encoding="utf-8").read().strip()
 
@@ -194,7 +205,19 @@ if ('serviceWorker' in navigator) {
     
     return html_text
 
+# ---- Version injection in sidebar ----
+def inject_version(html_text):
+    """Inyecta la versión en el sidebar (nav)."""
+    # Buscar el separador antes de los botones de guardar/exportar/importar
+    # y añadir versión antes
+    version_html = f'<div class="ttl">v{VERSION}</div>'
+    # Lo ponemos antes del botón de guardar
+    if version_html not in html_text:
+        html_text = html_text.replace('<button class="save-btn"', version_html + '\n  <button class="save-btn"')
+    return html_text
+
 html = inject_pwa(html)
+html = inject_version(html)
 open(HTML, "w", encoding="utf-8").write(html)
 print("[OK] PWA manifest + SW registration inyectado")
 

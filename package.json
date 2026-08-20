@@ -1,0 +1,14 @@
+{
+  "name": "ficha-dnd-2024",
+  "version": "0.1.0",
+  "description": "Ficha de personaje D&D 2024 autocontenida, offline-first PWA",
+  "private": true,
+  "scripts": {
+    "build": "python build.py",
+    "test": "python -m pytest tests/ -v",
+    "serve": "cd resultado-hermes && python -m http.server 8080"
+  },
+  "keywords": ["dnd", "character-sheet", "pwa", "offline-first"],
+  "author": "Galphie",
+  "license": "MIT"
+}
