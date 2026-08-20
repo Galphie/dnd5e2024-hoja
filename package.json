@@ -1,6 +1,6 @@
 {
   "name": "ficha-dnd-2024",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Ficha de personaje D&D 2024 autocontenida, offline-first PWA",
   "private": true,
   "scripts": {

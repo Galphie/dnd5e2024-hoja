@@ -13,6 +13,7 @@ from _fix_pool import fix_entry, title_es
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HTML = os.environ.get("FICHA_HTML", os.path.join(BASE, "resultado-hermes", "ficha_dnd_hermes.html"))
 POOL = os.environ.get("POOL_JSON", os.path.join(BASE, "referencias", "spells_txt", "pool.json"))
+FICHA_WEB = os.environ.get("FICHA_WEB_JSON", os.path.join(BASE, "referencias", "spells_ficha_web.json"))
 
 html = open(HTML, encoding="utf-8").read()
 pool = [fix_entry(e) for e in json.load(open(POOL, encoding="utf-8"))]
@@ -23,9 +24,26 @@ def norm(s):
 
 # --- 1) Construir SPELL_POOL con el formato REAL que usan spellRow/fill:
 # [nombre, niv, tm, rg, conc(0/1), ritual(0/1), material(0/1), nota, desc_corta]
+# Usar ficha_web.json para mapear nombres del pool a nombres oficiales PHB 2024
+ficha_web = json.load(open(FICHA_WEB, encoding="utf-8"))
+pool_to_official = {}
+for e in ficha_web:
+    pool_name = e.get("nombre_pool")
+    official_name = e.get("ficha")
+    if pool_name and official_name:
+        pool_to_official[norm(pool_name)] = official_name
+
 rows = []
 for e in pool:
-    nombre = title_es(e.get("nombre"))
+    pool_name = e.get("nombre")
+    pool_norm = norm(pool_name)
+    
+    # Si tiene nombre oficial, usarlo en SPELL_POOL; si no, title_es del pool
+    if pool_norm in pool_to_official:
+        nombre = pool_to_official[pool_norm]
+    else:
+        nombre = title_es(pool_name)
+    
     if not nombre:
         continue
     conc = 1 if (e.get("du") or "").lower().startswith("concentrac") else 0

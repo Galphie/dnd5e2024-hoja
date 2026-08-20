@@ -31,18 +31,46 @@ for e in ficha_web:
     if n:
         ficha_slug[n] = (e.get("slug", ""), e.get("pagina"))
 
-# --- Nuevo SPELL_INFO completo (385) ---
+# --- MAPEO: pool_name (normalizado) -> nombre PHB 2024 oficial ---
+pool_to_official = {}
+for e in ficha_web:
+    pool_name = e.get("nombre_pool")
+    official_name = e.get("ficha")
+    if pool_name and official_name:
+        pool_to_official[norm(pool_name)] = official_name
+
+# --- NUEVO SPELL_INFO completo (383 = pool con dl+pg) ---
+# CLAVES = nombres oficiales NORMALIZADOS (ej: "rafaga de hechicero")
+# VALOR.n = nombre de display (oficial con capitalización correcta)
 info = {}
+seen_pool_norms = set()
+
+# Una sola pasada por TODAS las entradas del pool con dl+pg (383)
 for e in pool:
-    nombre = e.get("nombre")
+    pool_name = e.get("nombre")
     dl = e.get("dl") or ""
     pg = e.get("pg")
     if not dl or pg is None:
         continue
-    k = norm(nombre)
-    slug, sp = ficha_slug.get(k, ("", pg))
-    info[k] = {"n": nombre, "p": pg, "d": dl,
-               "u": "https://www.aidedd.org/spell/es/" + slug if slug else ""}
+    pool_norm = norm(pool_name)
+    
+    # Evitar duplicados por pool_norm
+    if pool_norm in seen_pool_norms:
+        continue
+    seen_pool_norms.add(pool_norm)
+    
+    # Si tiene nombre oficial conocido, usar nombre oficial NORMALIZADO como clave
+    if pool_norm in pool_to_official:
+        official = pool_to_official[pool_norm]
+        key = norm(official)  # CLAVE = NOMBRE OFICIAL NORMALIZADO
+        display_name = official
+    else:
+        key = pool_norm  # Sin nombre oficial, usar pool_norm como clave
+        display_name = e.get("nombre")
+    
+    slug, sp = ficha_slug.get(key, ("", pg))
+    info[key] = {"n": display_name, "p": pg, "d": e.get("dl") or "",
+           "u": "https://www.aidedd.org/spell/es/" + slug if slug else ""}
 
 info_js = "var SPELL_INFO=" + json.dumps(info, ensure_ascii=False) + ";"
 print("SPELL_INFO items:", len(info))

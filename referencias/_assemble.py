@@ -207,13 +207,11 @@ if ('serviceWorker' in navigator) {
 
 # ---- Version injection in sidebar ----
 def inject_version(html_text):
-    """Inyecta la versión en el sidebar (nav)."""
-    # Buscar el separador antes de los botones de guardar/exportar/importar
-    # y añadir versión antes
-    version_html = f'<div class="ttl">v{VERSION}</div>'
-    # Lo ponemos antes del botón de guardar
+    """Inyecta la versión + autor en el sidebar (nav), al final."""
+    version_html = f'<div class="ttl" style="margin-top:auto;padding-top:8px;border-top:1px solid #5c4c30">v{VERSION} · Galphie</div>'
+    # Lo ponemos al final del nav, antes del cierre
     if version_html not in html_text:
-        html_text = html_text.replace('<button class="save-btn"', version_html + '\n  <button class="save-btn"')
+        html_text = html_text.replace('</nav>', f'  {version_html}\n</nav>')
     return html_text
 
 html = inject_pwa(html)
