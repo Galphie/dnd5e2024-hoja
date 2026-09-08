@@ -225,6 +225,7 @@ body{
 .slot .tl{width:20px;border-bottom:1px solid #6b5837}
 .slot .tl input{width:20px;text-align:center;font-size:9px;font-weight:700;color:#1a1208;border:none;outline:none;background:transparent;font-family:inherit}
 .slot .ds{display:flex;gap:2px;margin-left:auto}
+.slot:last-child .ds{margin-right:6px}
 
 /* Tabla de conjuros */
 .spell{left:30px;top:230px;width:510px;height:905px}
@@ -371,10 +372,33 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
 .mdl-f{padding:8px 18px 12px;border-top:1px solid #c4b896;font-family:inherit;font-size:10px;color:#3a2c14;display:flex;flex-direction:column;gap:5px}
 .mdl-f .src{color:#3a2c14}
 .mdl-f a{color:#9a3a2a;text-decoration:none;font-family:inherit;font-size:10px;font-weight:700}
-.mdl-f a:hover{text-decoration:underline}
+@media print{nav,.mb,.tip,.ac,.toast{display:none!important}.page{page-break-after:always}}
+
+/* ---------- Toast/Confirm Modal ---------- */
+.toast-ov{position:fixed;inset:0;background:rgba(58,44,20,.45);z-index:500;display:none;align-items:center;justify-content:center}
+.toast-ov.open{display:flex}
+.toast{background:#fbf6e7;border:1.5px solid #6b5837;border-radius:10px;box-shadow:0 5px 20px rgba(0,0,0,.4);min-width:280px;max-width:400px;padding:18px 20px;text-align:center;font-family:inherit;animation:toastIn .15s ease-out}
+@keyframes toastIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.toast-msg{font-size:12px;color:#1a1208;line-height:1.5;margin-bottom:16px}
+.toast-btns{display:flex;gap:10px;justify-content:center}
+.toast-btn{font-family:inherit;font-size:11px;font-weight:700;padding:8px 18px;border-radius:6px;border:1.5px solid #6b5837;cursor:pointer;transition:all .1s}
+.toast-btn.cancel{background:#fbf6e7;color:#3a2c14}
+.toast-btn.cancel:hover{background:#efe6cf}
+.toast-btn.confirm{background:#9a3a2a;color:#fff}
+.toast-btn.confirm:hover{background:#7a2a1a}
+.toast-btn.info{background:#4a6a8a;color:#fff}
+.toast-btn.info:hover{background:#3a5a7a}
+
 </style>
 </head>
 <body>
+<!-- Toast Modal -->
+<div class="toast-ov" id="toastOv">
+  <div class="toast" id="toastBox">
+    <div class="toast-msg" id="toastMsg"></div>
+    <div class="toast-btns" id="toastBtns"></div>
+  </div>
+</div>
 
 <!-- ================= NAVEGACIÓN ================= -->
 <nav id="nav">
@@ -386,8 +410,9 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
   <div class="sep"></div>
   <button class="save-btn" id="btn-guardar" type="button">💾 Guardar HTML</button>
   <button class="io" id="btn-exp" type="button">⬇ Exportar datos</button>
-  <button class="io" id="btn-imp" type="button">⬆ Importar datos</button>
-</nav>
+    <button class="io" id="btn-imp" type="button">⬆ Importar datos</button>
+    <button class="io" id="btn-clear" type="button" title="Vaciar hoja completamente">🗑 Vaciar hoja</button>
+  </nav>
 <div class="mb" id="mb"></div>
 
 <!-- ================= PÁGINA 1 · PERSONAJE ================= -->
@@ -907,7 +932,7 @@ document.getElementById('spellrows').addEventListener('click',function(e){
       '<textarea class="ses-te" placeholder="¿Qué pasó? Anótalo…"></textarea>';
     q('.sf',c).value=d.fecha||'';q('.sl',c).value=d.lugar||'';q('.ses-ti',c).value=d.titulo||'';q('.ses-te',c).value=d.texto||'';
     c.querySelectorAll('input,textarea').forEach(function(f){f.addEventListener('input',save);});
-    c.querySelector('.ses-x').addEventListener('click',function(){if(confirm('¿Eliminar esta sesión?')){c.remove();renumber();save();}});
+    c.querySelector('.ses-x').addEventListener('click',function(){showConfirm('¿Eliminar esta sesión?',function(){c.remove();renumber();save();});});
     return c;
   }
   function add(d){list.appendChild(mk(d));renumber();if(!d)save();}
@@ -954,7 +979,7 @@ document.getElementById('spellrows').addEventListener('click',function(e){
       '.cf-ataques':'ataques','.cf-rasgos':'rasgos','.cf-notas':'notas'};
     for(var k in map){var el=q(k,c);if(el)el.value=d[map[k]]||'';}
     c.querySelectorAll('input,textarea').forEach(function(f){f.addEventListener('input',save);});
-    c.querySelector('.comp-del').addEventListener('click',function(){if(confirm('¿Eliminar compañero?')){c.remove();emptyState();save();}});
+    c.querySelector('.comp-del').addEventListener('click',function(){showConfirm('¿Eliminar compañero?',function(){c.remove();emptyState();save();});});
     return c;
   }
   function add(d){list.insertBefore(mk(d),list.querySelector('.comp-empty'));emptyState();if(!d)save();}
@@ -1013,8 +1038,12 @@ function recolectar(){
     idiomas:gv('.idiom textarea'),equipo:gv('.equip2 textarea'),alineamiento:gv('.algn input')};
   d.monedas={};
   qa('#coinrows .coin-cell').forEach(function(c){var l=c.querySelector('.coin-lb'),i=c.querySelector('input');
-      if(l)d.monedas[l.textContent.trim()]=i?i.value:'';});
-    /* Rasgos de clase (.cf-col textareas) */
+        if(l)d.monedas[l.textContent.trim()]=i?i.value:'';});
+    /* Entrenamiento: armaduras (checkboxes), armas y herramientas (textareas) */
+    var ena={};qa('.ep-c').forEach(function(lb){var cb=lb.querySelector('input');if(cb)ena[lb.textContent.trim()]=cb.checked;});
+    var epa=q('.ep-a'),eph=q('.ep-h');
+    d.entrenamiento={armaduras:ena,armas:epa?epa.value:'',herramientas:eph?eph.value:''};
+      /* Rasgos de clase (.cf-col textareas) */
     d.rasgosClase=qa('#pg1 .cf-col textarea').map(function(t){return t.value;});
     /* Rasgos de especie (#especRows textarea) */
         var espec=q('#especRows');
@@ -1121,14 +1150,61 @@ document.getElementById('btn-imp').addEventListener('click',function(){
     var f=inp.files&&inp.files[0];if(!f)return;
     var rd=new FileReader();
     rd.onload=function(){
-      var d;try{d=JSON.parse(rd.result);}catch(err){alert('JSON no válido: '+err.message);return;}
-      if(!confirm('Esto reemplazará los datos actuales. ¿Continuar?'))return;
-      try{aplicar(d);alert('Datos importados correctamente.');}catch(err){alert('Error al importar: '+err.message);}
+      var d;try{d=JSON.parse(rd.result);}catch(err){showToast('JSON no válido: '+err.message,'info');return;}
+      showConfirm('Esto reemplazará los datos actuales. ¿Continuar?',function(){
+        try{aplicar(d);showToast('Datos importados correctamente.','info');}catch(err){showToast('Error al importar: '+err.message,'info');}
+      });
     };
     rd.readAsText(f);
   });
   inp.click();
 });
+document.getElementById('btn-clear').addEventListener('click',function(){
+  showConfirm('¿Vaciar la hoja COMPLETAMENTE? Se perderán todos los datos.',vaciarHoja);
+});
+function vaciarHoja(){
+  // Limpiar todos los inputs, textareas, selects
+  document.querySelectorAll('input[type="text"], input[type="number"], input:not([type]), textarea, select').forEach(function(el){
+    if(el.type==='checkbox' || el.type==='radio'){el.checked=false;}
+    else{el.value='';}
+  });
+  // Limpiar checkboxes específicos
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(cb){cb.checked=false;});
+  // Resetear selects al primer valor
+  document.querySelectorAll('select').forEach(function(sel){sel.selectedIndex=0;});
+  // Forzar recálculo
+  if(window.recalc)recalc();
+  saveStatic();
+}
+
+/* Toast/Confirm helpers */
+function showToast(msg,type){
+  var ov=q('#toastOv'),box=q('#toastBox'),msgEl=q('#toastMsg'),btns=q('#toastBtns');
+  msgEl.textContent=msg;
+  btns.innerHTML='';
+  var btn=document.createElement('button');
+  btn.className='toast-btn '+(type==='error'?'confirm':'info');
+  btn.textContent='OK';
+  btn.onclick=function(){ov.classList.remove('open');};
+  btns.appendChild(btn);
+  ov.classList.add('open');
+}
+function showConfirm(msg,onConfirm){
+  var ov=q('#toastOv'),box=q('#toastBox'),msgEl=q('#toastMsg'),btns=q('#toastBtns');
+  msgEl.textContent=msg;
+  btns.innerHTML='';
+  var btnCancel=document.createElement('button');
+  btnCancel.className='toast-btn cancel';
+  btnCancel.textContent='Cancelar';
+  btnCancel.onclick=function(){ov.classList.remove('open');};
+  var btnOk=document.createElement('button');
+  btnOk.className='toast-btn confirm';
+  btnOk.textContent='Confirmar';
+  btnOk.onclick=function(){ov.classList.remove('open');if(onConfirm)onConfirm();};
+  btns.appendChild(btnCancel);
+  btns.appendChild(btnOk);
+  ov.classList.add('open');
+}
 
 /* ---------- Inicialización ---------- */
 buildSlots();buildAtk();buildEspe();buildCoins();buildSpells();
