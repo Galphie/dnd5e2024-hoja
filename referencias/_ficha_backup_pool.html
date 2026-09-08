@@ -210,17 +210,20 @@ body{
 .sp-l textarea, .dt-l textarea{width:100%;height:100%;resize:none;background-color:transparent;background-image:repeating-linear-gradient(to bottom,transparent 0 13px,#c4b896 13px 14px);border:none;outline:none;font-family:inherit;font-size:8.5px;color:#1a1208;line-height:14px;white-space:pre-line}
 
 /* ============ PÁGINA 2 ============ */
-.apt{left:30px;top:43px;width:175px;height:177px}
-.apt-r{display:flex;align-items:center;gap:10px;padding:0 12px;margin:10px 0 14px}
+.apt{left:30px;top:18px;width:175px;height:225px}
+.apt-r{display:flex;align-items:center;gap:10px;padding:0 12px;margin:8px 0 12px}
 .apt-v{width:40px;height:36px;border:1.5px solid #6b5837;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#1a1208}
 .apt-l{font-size:8.5px;font-weight:700;color:#3a2c14;line-height:1.15}
+.apt-stat{margin:0 12px 8px;padding:4px 8px;font-size:9px;font-weight:700;color:#1a1208;background:#fbf6e7;border:1.5px solid #6b5837;border-radius:4px;font-family:inherit;width:calc(100% - 24px);cursor:pointer}
+.apt-stat:focus{outline:none;border-color:#9a3a2a;background:#fffef7}
 .p2b{position:absolute;left:215px;top:8px;width:325px;height:78px;border:1.5px solid #6b5837;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#efe6cf,#e1d4b3)}
 .p2b .logo{font-family:'Georgia',serif;font-size:36px;font-weight:900;color:#1a1208;letter-spacing:.05em}
-.slots{left:215px;top:92px;width:325px;height:128px}
+.slots{left:215px;top:112px;width:375px;height:128px}
 .slots .sg{position:absolute;top:32px;left:12px;right:12px;bottom:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.slot .hd{display:flex;justify-content:flex-end;gap:12px;font-size:6.5px;font-weight:700;color:#3a2c14;letter-spacing:.03em;margin-bottom:4px}
-.slot .hd span:first-child{margin-right:16px}
-.slot .r{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.slot .hd{display:flex;align-items:center;gap:5px;margin-bottom:4px;padding:0 8px;padding-left:51px;font-size:6.5px;font-weight:700;color:#3a2c14;letter-spacing:.03em}
+.slot .hd span:first-child{width:20px;text-align:center}
+.slot .hd span:last-child{flex:1;text-align:right;padding-right:8px}
+.slot .r{display:flex;align-items:center;gap:5px;margin-bottom:3px;padding-right:8px}
 .slot .rl{font-size:8px;font-weight:700;color:#3a2c14;width:46px;flex-shrink:0}
 .slot .tl{width:20px;border-bottom:1px solid #6b5837}
 .slot .tl input{width:20px;text-align:center;font-size:9px;font-weight:700;color:#1a1208;border:none;outline:none;background:transparent;font-family:inherit}
@@ -337,6 +340,7 @@ nav button.on{background:#8a7350;color:#fff}
 nav .sep{height:1px;background:#5c4c30;margin:6px 0}
 nav .save-btn{background:#8a7350;border-color:#a0895f;text-align:center}
 nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
+nav button.io#btn-clear:hover{background:#9a3a2a;color:#fff;border-color:#7a2a1a}
 
 /* Burbuja de modificadores */
 .mb{position:fixed;right:14px;top:50%;transform:translateY(-50%);display:none;width:112px;padding:12px 10px;background:#f1ead7;border:1.5px solid #6b5837;border-radius:12px;box-shadow:0 3px 12px rgba(0,0,0,.28);z-index:150}
@@ -564,12 +568,20 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
   <div class="corner c-bl"></div><div class="corner c-br"></div>
 
   <div class="blk apt"><div class="lab">APTITUD MÁGICA</div>
-    <div style="position:absolute;top:26px;left:0;right:0">
-      <div class="apt-r"><div class="apt-v" id="m-mod">+4</div><div class="apt-l">MODIFICADOR<br>DE APTITUD MÁG.</div></div>
-      <div class="apt-r"><div class="apt-v" id="m-dc">14</div><div class="apt-l">CD DE SALVACIÓN<br>DE CONJUROS</div></div>
-      <div class="apt-r"><div class="apt-v" id="m-atk">+6</div><div class="apt-l">BON. ATAQUE<br>CONJURO</div></div>
+      <div style="position:absolute;top:26px;left:0;right:0">
+        <select class="apt-stat E" id="apt-stat" title="Característica para aptitud mágica">
+          <option value="FUE">Fuerza (FUE)</option>
+          <option value="DES">Destreza (DES)</option>
+          <option value="CON">Constitución (CON)</option>
+          <option value="INT" selected>Inteligencia (INT)</option>
+          <option value="SAB">Sabiduría (SAB)</option>
+          <option value="CAR">Carisma (CAR)</option>
+        </select>
+        <div class="apt-r"><div class="apt-v" id="m-mod">+4</div><div class="apt-l">MODIFICADOR<br>DE APTITUD MÁG.</div></div>
+        <div class="apt-r"><div class="apt-v" id="m-dc">14</div><div class="apt-l">CD DE SALVACIÓN<br>DE CONJUROS</div></div>
+        <div class="apt-r"><div class="apt-v" id="m-atk">+6</div><div class="apt-l">BON. ATAQUE<br>CONJURO</div></div>
+      </div>
     </div>
-  </div>
 
   <div class="p2b"><div class="logo">D&amp;D</div></div>
 
@@ -707,11 +719,13 @@ function recalc(){
       if(bn)bn.textContent=fmtMod(m+((cb&&cb.checked)?pb:0));
     });
   });
-  var cm=modOf(abScore('CAR'));
+  // Aptitud mágica: usar característica seleccionada (default INT)
+  var aptStat=q('#apt-stat')?.value||'INT';
+  var am=modOf(abScore(aptStat));
   var he=q('#m-mod'),hd=q('#m-dc'),ha=q('#m-atk');
-  if(he)he.textContent=fmtMod(cm);
-  if(hd)hd.textContent=String(8+pb+cm);
-  if(ha)ha.textContent=fmtMod(pb+cm);
+  if(he)he.textContent=fmtMod(am);
+  if(hd)hd.textContent=String(8+pb+am);
+  if(ha)ha.textContent=fmtMod(pb+am);
   var sub=q('#bita-sub');
   if(sub){var nom=gv('[data-k="nombre"]').trim(),cls=gv('[data-k="clase"]').trim();
     sub.textContent='CRÓNICAS DE '+(nom||'—').toUpperCase()+(cls?(' · '+cls.toUpperCase()):'');}
@@ -1013,7 +1027,8 @@ function recolectar(){
   if(window.recalc)recalc();
   var d={_tipo:'ficha-dnd2024',_fecha:new Date().toISOString()};
   d.identidad={nombre:gv('[data-k="nombre"]'),trasfondo:gv('[data-k="trasfondo"]'),clase:gv('[data-k="clase"]'),
-    especie:gv('[data-k="especie"]'),subclase:gv('[data-k="subclase"]'),nivel:gv('#f-nivel'),px:gv('.nvl .px input')};
+    especie:gv('[data-k="especie"]'),subclase:gv('[data-k="subclase"]'),nivel:gv('#f-nivel'),px:gv('.nvl .px input'),
+    aptitudEstadistica:q('#apt-stat')?.value||'INT'};
   var sts=qa('.stats .v input');
   d.estado={iniciativa:sts[0]?sts[0].value:'',velocidad:sts[1]?sts[1].value:'',tamano:sts[2]?sts[2].value:'',
     percepcion:sts[3]?sts[3].value:'',ca:gv('#f-ca'),competencia:gv('#f-prof'),
@@ -1058,8 +1073,11 @@ function recolectar(){
 function aplicar(d){
   if(!d||typeof d!=='object')return;
   var id=d.identidad||{};
-  sv('[data-k="nombre"]',id.nombre);sv('[data-k="trasfondo"]',id.trasfondo);sv('[data-k="clase"]',id.clase);
-  sv('[data-k="especie"]',id.especie);sv('[data-k="subclase"]',id.subclase);sv('#f-nivel',id.nivel);sv('.nvl .px input',id.px);
+    sv('[data-k="nombre"]',id.nombre);sv('[data-k="trasfondo"]',id.trasfondo);sv('[data-k="clase"]',id.clase);
+    sv('[data-k="especie"]',id.especie);sv('[data-k="subclase"]',id.subclase);sv('#f-nivel',id.nivel);sv('.nvl .px input',id.px);
+    // Restaurar característica de aptitud mágica
+    var aptSel=q('#apt-stat');
+    if(aptSel && id.aptitudEstadistica)aptSel.value=id.aptitudEstadistica;
   var e=d.estado||{},sts=qa('.stats .v input');
   if(sts[0]&&e.iniciativa!=null)sts[0].value=e.iniciativa;if(sts[1]&&e.velocidad!=null)sts[1].value=e.velocidad;
   if(sts[2]&&e.tamano!=null)sts[2].value=e.tamano;if(sts[3]&&e.percepcion!=null)sts[3].value=e.percepcion;
