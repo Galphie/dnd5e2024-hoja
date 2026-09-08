@@ -207,7 +207,7 @@ body{
 .spft .r{border-bottom:1px solid rgba(107,88,55,.14);padding:2px 1px}
 .spft .r input{width:100%;font-size:8.5px;color:#1a1208;border:none;outline:none;background:transparent;font-family:inherit}
 .sp-l{width:228px}.dt-l{left:578px;width:224px}
-.dt-l textarea{width:100%;height:100%;resize:none;background-color:transparent;background-image:repeating-linear-gradient(to bottom,transparent 0 13px,#c4b896 13px 14px);border:none;outline:none;font-family:inherit;font-size:8.5px;color:#1a1208;line-height:14px;white-space:pre-line}
+.sp-l textarea, .dt-l textarea{width:100%;height:100%;resize:none;background-color:transparent;background-image:repeating-linear-gradient(to bottom,transparent 0 13px,#c4b896 13px 14px);border:none;outline:none;font-family:inherit;font-size:8.5px;color:#1a1208;line-height:14px;white-space:pre-line}
 
 /* ============ PÁGINA 2 ============ */
 .apt{left:30px;top:43px;width:175px;height:177px}
@@ -529,7 +529,7 @@ nav button.io{font-size:11px;padding:8px 10px;background:#4a3d26}
     </div>
   </div>
 
-  <div class="blk spft sp-l"><div class="lab">RASGOS DE ESPECIE</div><div class="in" id="especRows"></div></div>
+  <div class="blk spft sp-l"><div class="lab">RASGOS DE ESPECIE</div><div class="in"><textarea class="E" id="especRows"></textarea></div></div>
   <div class="blk spft dt-l"><div class="lab">DOTES</div><div class="in"><textarea class="E">ASI niv.4:&#10;CAR 17 → 18&#10;(mod +4)</textarea></div></div>
 </div>
 
@@ -722,8 +722,8 @@ function buildAtk(){
 }
 function buildEspe(){
   var el=document.getElementById('especRows');if(!el)return;
-  var v=['Resistencia enana: veneno','Visión oscuridad: 36 m','Resiliencia enana','Aguante enano: +1 PG/nivel','Afinidad piedra: Tremorsense','Velocidad: 30 pies','','','','',''];
-  el.innerHTML=v.map(function(x){return '<div class="r"><input class="E" value="'+x+'"></div>';}).join('');
+  var v='Resistencia enana: veneno\nVisión oscuridad: 36 m\nResiliencia enana\nAguante enano: +1 PG/nivel\nAfinidad piedra: Tremorsense\nVelocidad: 30 pies';
+  el.value=v;
 }
 function buildCoins(){
   var el=document.getElementById('coinrows');if(!el)return;
@@ -1013,11 +1013,19 @@ function recolectar(){
     idiomas:gv('.idiom textarea'),equipo:gv('.equip2 textarea'),alineamiento:gv('.algn input')};
   d.monedas={};
   qa('#coinrows .coin-cell').forEach(function(c){var l=c.querySelector('.coin-lb'),i=c.querySelector('input');
-    if(l)d.monedas[l.textContent.trim()]=i?i.value:'';});
-  d.bitacora=(window.__sesData)?window.__sesData():[];
-  d.companeros=(window.__compData)?window.__compData():[];
-  return d;
-}
+      if(l)d.monedas[l.textContent.trim()]=i?i.value:'';});
+    /* Rasgos de clase (.cf-col textareas) */
+    d.rasgosClase=qa('#pg1 .cf-col textarea').map(function(t){return t.value;});
+    /* Rasgos de especie (#especRows textarea) */
+        var espec=q('#especRows');
+        d.rasgosEspecie=espec?espec.value:'';
+    /* Dotes (.dt-l textarea) */
+    var dt=q('.dt-l textarea');
+    d.dotes=dt?dt.value:'';
+    d.bitacora=(window.__sesData)?window.__sesData():[];
+    d.companeros=(window.__compData)?window.__compData():[];
+    return d;
+  }
 function aplicar(d){
   if(!d||typeof d!=='object')return;
   var id=d.identidad||{};
@@ -1083,11 +1091,14 @@ function aplicar(d){
     if(epa&&d.entrenamiento.armas!=null)epa.value=d.entrenamiento.armas;
     if(eph&&d.entrenamiento.herramientas!=null)eph.value=d.entrenamiento.herramientas;}
   /* Rasgos de clase (textareas .cf-col) */
-  if(d.rasgosClase)qa('#pg1 .cf-col textarea').forEach(function(t,k){if(d.rasgosClase[k]!=null)t.value=d.rasgosClase[k];});
-  /* Rasgos de especie (#especRows) */
-  if(d.rasgosEspecie)qa('#especRows .r').forEach(function(r,k){var i=r.querySelector('input');if(i&&d.rasgosEspecie[k]!=null)i.value=d.rasgosEspecie[k];});
-  /* Dotes (.dt-l textarea) */
-  if(d.dotes!=null){var dt=q('.dt-l textarea');if(dt)dt.value=d.dotes;}
+      if(d.rasgosClase)qa('#pg1 .cf-col textarea').forEach(function(t,k){if(d.rasgosClase[k]!=null)t.value=d.rasgosClase[k];});
+      /* Rasgos de especie (#especRows textarea) */
+          if(d.rasgosEspecie){
+            var espec=q('#especRows');
+            if(espec)espec.value=d.rasgosEspecie;
+          }
+      /* Dotes (.dt-l textarea) */
+      if(d.dotes!=null){var dt=q('.dt-l textarea');if(dt)dt.value=d.dotes;}
   /* Sintonización (filas .atun-r) */
   if(d.sintonizacion)qa('.atun-r').forEach(function(r,k){var s=d.sintonizacion[k];if(!s)return;
     var cb=r.querySelector('.d'),ln=r.querySelector('.line');if(cb&&s.check!=null)cb.checked=!!s.check;if(ln&&s.texto!=null)ln.value=s.texto;});
