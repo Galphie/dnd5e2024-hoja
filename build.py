@@ -64,9 +64,30 @@ def main():
             os.remove(tmp)
     print("[6/6] limpio. OK:", out)
     
-    # Copiar la hoja vacía a index.html para Netlify (entry point limpio)
-    shutil.copyfile(EMPTY_OUT, INDEX_OUT)
-    print("[7/7] copiado index.html vacío ->", INDEX_OUT)
+    # Crear index.html desde la ficha YA CONSTRUIDA (con JS), limpiando solo datos de personaje
+    # Usamos el mismo método que create_empty_index.py pero sobre el out generado
+    import re
+    with open(out, 'r', encoding='utf-8') as f:
+        html = f.read()
+    
+    # 1. Title genérico
+    html = re.sub(r'<title>.*?</title>', '<title>Ficha D&D 2024</title>', html, flags=re.DOTALL)
+    # 2. Inputs - value=""
+    html = re.sub(r'(<input[^>]*type=([\'"])(?:text|number|hidden|email|password|search|tel|url)(\2)[^>]*value=)([\'"])[^\'"]*(\4)', r'\1""\5', html, flags=re.IGNORECASE)
+    html = re.sub(r'(<input[^>]*value=)([\'"])[^\'"]*(\2)', r'\1""\2', html, flags=re.IGNORECASE)
+    # 3. Checkboxes/radios - quitar checked
+    html = re.sub(r'\s+checked(?:\s*=\s*[\'"]checked[\'"])?', '', html, flags=re.IGNORECASE)
+    # 4. Textareas vacíos
+    html = re.sub(r'(<textarea[^>]*>).*?(</textarea>)', r'\1\2', html, flags=re.DOTALL | re.IGNORECASE)
+    # 5. Selects - quitar selected
+    html = re.sub(r'\s+selected(?:\s*=\s*[\'"]selected[\'"])?', '', html, flags=re.IGNORECASE)
+    # 6. Datos JS de ejemplo (bitácora)
+    html = re.sub(r'texto:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', r'texto:\'\'', html, flags=re.IGNORECASE)
+    html = re.sub(r'titulo:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', r'titulo:\'\'', html, flags=re.IGNORECASE)
+    
+    with open(INDEX_OUT, 'w', encoding='utf-8') as f:
+        f.write(html)
+    print("[7/7] index.html generado desde build (JS completo + datos vacíos) ->", INDEX_OUT)
 
 if __name__ == "__main__":
     main()
