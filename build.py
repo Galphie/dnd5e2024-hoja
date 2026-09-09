@@ -22,6 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REF = os.path.join(HERE, "referencias")
 BACKUP = os.path.join(REF, "_ficha_backup_pool.html")
 DEFAULT_OUT = os.path.join(HERE, "resultado-hermes", "ficha_dnd_hermes.html")
+EMPTY_OUT = os.path.join(HERE, "resultado-hermes", "ficha_dnd_hermes_empty.html")
+INDEX_OUT = os.path.join(HERE, "resultado-hermes", "index.html")
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
@@ -61,6 +63,10 @@ def main():
         if os.path.exists(tmp):
             os.remove(tmp)
     print("[6/6] limpio. OK:", out)
+    
+    # Copiar la hoja vacía a index.html para Netlify (entry point limpio)
+    shutil.copyfile(EMPTY_OUT, INDEX_OUT)
+    print("[7/7] copiado index.html vacío ->", INDEX_OUT)
 
 if __name__ == "__main__":
     main()
