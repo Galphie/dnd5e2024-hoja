@@ -12,6 +12,7 @@ personajes/
 tests/_out/
 *.pool_tmp
 *.info_tmp
+resultado-hermes/
 
 # --- Datos intermedios de scraping (regenerables, no son inputs del build) ---
 referencias/spells_txt/all_*.txt
