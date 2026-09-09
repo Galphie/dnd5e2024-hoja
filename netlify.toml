@@ -3,7 +3,7 @@
 
 [build]
   publish = "resultado-hermes"
-  command = "echo 'Static site — no build step'"
+  command = "python build.py"
 
 # Headers para PWA
 [[headers]]
