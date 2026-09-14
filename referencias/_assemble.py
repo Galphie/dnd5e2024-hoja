@@ -166,11 +166,11 @@ TOOLTIPS_JS = """/* ---------- Tooltips de cabecera de tablas (conjuros + ataque
   });
 })();"""
 
-BLOCK = "/* ---------- Bitácora ---------- */"
+BLOCK = "/* ---------- Bitacora ---------- */"
 if "span[data-tt]" in html and "Tooltips de cabecera de tablas" in html:
     print("[SKIP] bloque tooltips (ya aplicado)")
 else:
-    need("ancla Bitácora", BLOCK in html, True)
+    need("ancla Bitacora", BLOCK in html, True)
     html = html.replace(BLOCK, TOOLTIPS_JS + "\n\n" + BLOCK, 1)
     print("[OK] bloque tooltips insertado")
 
