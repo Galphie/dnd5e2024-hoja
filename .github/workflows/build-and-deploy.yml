@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir -p release-artifacts
           # Empty sheet for download
-          cp resultado-hermes/index.html release-artifacts/ficha_dnd_2024_vacia.html
+          cp resultado-hermes/ficha_dnd_hermes_empty.html release-artifacts/ficha_dnd_2024_vacia.html
           # Full sheet with sample data for download
           cp resultado-hermes/ficha_dnd_hermes.html release-artifacts/ficha_dnd_2024_completa.html
           # For GitHub Pages deployment

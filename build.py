@@ -91,5 +91,10 @@ def main():
         f.write(html)
     print("[7/7] index.html generado desde build (JS completo + datos vacíos) ->", INDEX_OUT)
 
+    # Crear ficha_dnd_hermes_empty.html (copia de index.html para release asset)
+    EMPTY_OUT = os.path.join(os.path.dirname(INDEX_OUT), "ficha_dnd_hermes_empty.html")
+    shutil.copyfile(INDEX_OUT, EMPTY_OUT)
+    print("[8/8] ficha_dnd_hermes_empty.html copiado ->", EMPTY_OUT)
+
 if __name__ == "__main__":
     main()
