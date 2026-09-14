@@ -1,0 +1,96 @@
+name: Build & Deploy D&D 5e 2024 Character Sheet
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright pytest
+          playwright install chromium
+
+      - name: Build project
+        run: python build.py
+
+      - name: Verify build artifacts
+        run: |
+          ls -la resultado-hermes/
+          test -f resultado-hermes/index.html && echo "index.html OK"
+          test -f resultado-hermes/ficha_dnd_hermes.html && echo "ficha_dnd_hermes.html OK"
+          test -f resultado-hermes/ficha_dnd_hermes_empty.html && echo "ficha_dnd_hermes_empty.html OK"
+
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p release-artifacts
+          # Empty sheet for download
+          cp resultado-hermes/index.html release-artifacts/ficha_dnd_2024_vacia.html
+          # Full sheet with sample data for download
+          cp resultado-hermes/ficha_dnd_hermes.html release-artifacts/ficha_dnd_2024_completa.html
+          # For GitHub Pages deployment
+          cp resultado-hermes/index.html release-artifacts/index.html
+          cp resultado-hermes/manifest.json release-artifacts/manifest.json
+          cp resultado-hermes/sw.js release-artifacts/sw.js
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: release-artifacts/
+          retention-days: 30
+
+      - name: Create Release (on tag push)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-artifacts/ficha_dnd_2024_vacia.html
+            release-artifacts/ficha_dnd_2024_completa.html
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  deploy-pages:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./site
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

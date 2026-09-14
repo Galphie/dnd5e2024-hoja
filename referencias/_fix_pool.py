@@ -127,11 +127,25 @@ def _strip_mid_pages(dl):
 
 
 def _fix_ocr(dl):
-    """Corrupciones OCR de dados: 1410->1d10, 1412->1d12, íd10->1d10, 'Tira 148'."""
+    """Corrupciones OCR de dados: 1410->1d10, 1412->1d12, íd10->1d10, 'Tira 148'.
+    También: 'velocidad de O' -> 'velocidad de 0', 'se reducen a O' -> 'se reducen a 0'.
+    También: 'cas AS' -> '' (basura de ilustración OCR).
+    También: 'puntos de golpe se reducen a O' -> 'puntos de golpe se reducen a 0'.
+    También: 'O m de altura' -> '0 m de altura'.
+    También: 'llegue a O m' -> 'llegue a 0 m'."""
     dl = dl.replace('1410', '1d10').replace('1412', '1d12')
     dl = dl.replace('íd10', '1d10').replace('í d10', '1d10')
     dl = dl.replace('Tira 148', 'Tira 1d8')
     dl = dl.replace(' 148 para', ' 1d8 para')
+    # OCR: O (letra) -> 0 (cero) en contextos numéricos
+    dl = dl.replace('velocidad de O', 'velocidad de 0')
+    dl = dl.replace('se reducen a O', 'se reducen a 0')
+    dl = dl.replace('puntos de golpe se reducen a O', 'puntos de golpe se reducen a 0')
+    dl = dl.replace('O m de altura', '0 m de altura')
+    dl = dl.replace('llegue a O m', 'llegue a 0 m')
+    dl = dl.replace('llegue a O ', 'llegue a 0 ')
+    # Basura de ilustración OCR
+    dl = dl.replace('cas AS', '')
     return dl
 
 

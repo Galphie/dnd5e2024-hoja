@@ -77,8 +77,10 @@ def main():
     html = re.sub(r'(<input[^>]*value=)([\'"])[^\'"]*(\2)', r'\1""\2', html, flags=re.IGNORECASE)
     # 3. Checkboxes/radios - quitar checked
     html = re.sub(r'\s+checked(?:\s*=\s*[\'"]checked[\'"])?', '', html, flags=re.IGNORECASE)
-    # 4. Textareas vacíos
-    html = re.sub(r'(<textarea[^>]*>).*?(</textarea>)', r'\1\2', html, flags=re.DOTALL | re.IGNORECASE)
+    # 4. Textareas vacíos (evitar romper <script>)
+    # Primero textareas con contenido específico
+    html = re.sub(r'(<textarea[^>]*>)[^<]*(</textarea>)', r'\1\2', html, flags=re.IGNORECASE)
+    # Luego textareas ya vacíos
     # 5. Selects - quitar selected
     html = re.sub(r'\s+selected(?:\s*=\s*[\'"]selected[\'"])?', '', html, flags=re.IGNORECASE)
     # 6. Datos JS de ejemplo (bitácora)

@@ -26,8 +26,14 @@ self.addEventListener('fetch', (event) => {
   // Solo GET
   if (request.method !== 'GET') return;
   
+  // Normalizar URL para scope relativo (GitHub Pages subdirectory)
+  const url = new URL(request.url);
+  const scope = registration.scope.replace(/\/$/, '');
+  const relativePath = url.pathname.replace(scope, '').replace(/^\//, '') || 'index.html';
+  const normalizedRequest = new Request(relativePath, request);
+  
   event.respondWith(
-    caches.match(request).then((cached) => {
+    caches.match(normalizedRequest).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
         // No cachear respuestas no-OK ni opaque
@@ -35,7 +41,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         }
         const respClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, respClone));
+        caches.open(CACHE_NAME).then((cache) => cache.put(normalizedRequest, respClone));
         return response;
       }).catch(() => cached); // offline fallback
     })
