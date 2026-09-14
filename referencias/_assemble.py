@@ -135,15 +135,15 @@ TOOLTIPS_JS = """/* ---------- Tooltips de cabecera de tablas (conjuros + ataque
 (function(){
   var pop=document.getElementById('tip');
   var T={
-    nivel:'<b>NIVEL</b><span class="meta">Nivel del conjuro</span>0 = truco (se lanza sin gastar espacio). 1\u20139 = nivel del conjuro. Se rellena autom\u00e1ticamente al elegir el conjuro.',
-    nombre:'<b>NOMBRE</b><span class="meta">B\u00fasqueda</span>Escribe aqu\u00ed para buscar entre los 385 conjuros del Manual 2024. Al elegir uno se rellenan el resto de columnas.',
-    tiempo:'<b>TIEMPO</b><span class="meta">Tiempo de lanzamiento</span>Acci\u00f3n, Acci\u00f3n bonus, Reacci\u00f3n o m\u00e1s (1 minuto, 1 hora\u2026). Si el conjuro es ritual, al lanzarlo como ritual tarda 10 minutos m\u00e1s.',
-    rango:'<b>RANGO</b><span class="meta">Alcance</span>Personal, Toque o distancia en metros (9 m, 30 m\u2026). Indica desde d\u00f3nde puedes lanzar el conjuro.',
-    crm:'<b>C \u00b7 R \u00b7 M</b><span class="meta">Requisitos del conjuro</span><b>C</b> Concentraci\u00f3n: solo una a la vez; si recibes da\u00f1o, salvaci\u00f3n de CON (CD 10 o la mitad del da\u00f1o, la mayor, m\u00e1x. 30) o el conjuro termina.<br><b>R</b> Ritual: puede lanzarse como ritual: +10 min y sin gastar espacio de conjuro.<br><b>M</b> Material: requiere un componente material. Si tiene coste o se consume, no puede sustituirse por un foco de conjuro.',
-    notas:'<b>NOTAS</b><span class="meta">Anotaciones</span>Notas personales del personaje: da\u00f1o, efectos, usos. Se rellenan autom\u00e1ticamente al a\u00f1adir el conjuro y puedes editarlas.',
-    'atk-nombre':'<b>NOMBRE</b><span class="meta">Ataque o arma</span>Nombre del ataque o arma usada (p. ej. bast\u00f3n enano, cuchillo, bola de fuego).',
-    'atk-bono':'<b>BONIFICADOR</b><span class="meta">Total al ataque</span>Bonificador total al ataque: competencia + modificador de caracter\u00edstica + otros ajustes (arma m\u00e1gica, etc.).',
-    'atk-danyo':'<b>DA\u00d1O Y TIPO</b><span class="meta">Dados del ataque</span>Dados de da\u00f1o y tipo (p. ej. 1d6 contundente). En conjuros, suele ser el da\u00f1o del lanzamiento.',
+    nivel:'<b>NIVEL</b><span class="meta">Nivel del conjuro</span>0 = truco (se lanza sin gastar espacio). 1-9 = nivel del conjuro. Se rellena automaticamente al elegir el conjuro.',
+    nombre:'<b>NOMBRE</b><span class="meta">Busqueda</span>Escribe aqui para buscar entre los 385 conjuros del Manual 2024. Al elegir uno se rellenan el resto de columnas.',
+    tiempo:'<b>TIEMPO</b><span class="meta">Tiempo de lanzamiento</span>Accion, Accion bonus, Reaccion o mas (1 minuto, 1 hora...). Si el conjuro es ritual, al lanzarlo como ritual tarda 10 minutos mas.',
+    rango:'<b>RANGO</b><span class="meta">Alcance</span>Personal, Toque o distancia en metros (9 m, 30 m...). Indica desde donde puedes lanzar el conjuro.',
+    crm:'<b>C . R . M</b><span class="meta">Requisitos del conjuro</span><b>C</b> Concentracion: solo una a la vez; si recibes dano, salvacion de CON (CD 10 o la mitad del dano, la mayor, max. 30) o el conjuro termina.<br><b>R</b> Ritual: puede lanzarse como ritual: +10 min y sin gastar espacio de conjuro.<br><b>M</b> Material: requiere un componente material. Si tiene coste o se consume, no puede sustituirse por un foco de conjuro.',
+    notas:'<b>NOTAS</b><span class="meta">Anotaciones</span>Notas personales del personaje: dano, efectos, usos. Se rellenan automaticamente al anadir el conjuro y puedes editarlas.',
+    'atk-nombre':'<b>NOMBRE</b><span class="meta">Ataque o arma</span>Nombre del ataque o arma usada (p. ej. baston enano, cuchillo, bola de fuego).',
+    'atk-bono':'<b>BONIFICADOR</b><span class="meta">Total al ataque</span>Bonificador total al ataque: competencia + modificador de caracteristica + otros ajustes (arma magica, etc.).',
+    'atk-danyo':'<b>DANO Y TIPO</b><span class="meta">Dados del ataque</span>Dados de dano y tipo (p. ej. 1d6 contundente). En conjuros, suele ser el dano del lanzamiento.',
     'atk-notas':'<b>NOTAS</b><span class="meta">Anotaciones</span>Notas personales del ataque: efectos extra, condiciones que provoca, usos limitados.'
   };
   document.addEventListener('mouseover',function(e){
