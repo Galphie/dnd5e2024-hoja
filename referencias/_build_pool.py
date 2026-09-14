@@ -54,7 +54,7 @@ for e in pool:
                  e.get("rg", "") or "", conc, ritual, mat,
                  e.get("nota", "") or "", ""])
 
-pool_js = "var SPELL_POOL=" + json.dumps(rows, ensure_ascii=False) + ";"
+pool_js = "var SPELL_POOL=" + json.dumps(rows, ensure_ascii=True) + ";"
 print("SPELL_POOL items:", len(rows))
 
 open(HTML + ".pool_tmp", "w", encoding="utf-8").write(pool_js)

@@ -72,7 +72,7 @@ for e in pool:
     info[key] = {"n": display_name, "p": pg, "d": e.get("dl") or "",
            "u": "https://www.aidedd.org/spell/es/" + slug if slug else ""}
 
-info_js = "var SPELL_INFO=" + json.dumps(info, ensure_ascii=False) + ";"
+info_js = "var SPELL_INFO=" + json.dumps(info, ensure_ascii=True) + ";"
 print("SPELL_INFO items:", len(info))
 
 open(HTML + ".info_tmp", "w", encoding="utf-8").write(info_js)
