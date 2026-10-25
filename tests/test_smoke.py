@@ -18,21 +18,20 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FICHA = os.path.join(HERE, "tests", "_out", "ficha_test.html")
 
 pytest.importorskip("playwright.sync_api")
-from playwright.sync_api import sync_playwright  # noqa: E402
 
 
 @pytest.fixture(scope="module")
-def page():
+def page(browser):
+    # navegador compartido (conftest.py): Playwright no admite dos sync_playwright a la vez
     assert os.path.exists(FICHA), "ejecuta primero test_pipeline.py (o build.py --out tests/_out/)"
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        pg = browser.new_page(viewport={"width": 1600, "height": 1100})
-        errors = []
-        pg.on("pageerror", lambda e: errors.append(str(e)))
-        pg.goto("file:///" + FICHA.replace("\\", "/"))
-        pg.wait_for_timeout(300)
-        yield pg, errors
-        browser.close()
+    ctx = browser.new_context(viewport={"width": 1600, "height": 1100})
+    pg = ctx.new_page()
+    errors = []
+    pg.on("pageerror", lambda e: errors.append(str(e)))
+    pg.goto("file:///" + FICHA.replace("\\", "/"))
+    pg.wait_for_timeout(300)
+    yield pg, errors
+    ctx.close()
 
 
 def test_carga_sin_errores(page):

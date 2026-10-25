@@ -92,8 +92,9 @@ def _strip_trailing_junk(dl):
         dl = re.sub(r'\s+(?:\d{1,3}\s+)?Xx\s*$', '', dl)
         dl = re.sub(r'\s+\d{1,3}\s+e\s*$', '', dl)
         dl = re.sub(r'\s+e\s*$', '', dl)
-        dl = re.sub(r'\s+\d{1,3}\s*$', '', dl)
+        # el banner 'CONJUROS nnn' antes que el numero suelto (si no, queda 'CONJUROS')
         dl = re.sub(r'\s+CONJUROS\s+\d{1,3}\s*$', '', dl)
+        dl = re.sub(r'\s+\d{1,3}\s*$', '', dl)
         dl = re.sub(r'\s+Pg\.?\s*$', '', dl, flags=re.I)
         dl = dl.rstrip()
     return dl
@@ -164,11 +165,6 @@ def clean_dl(dl):
     # pipes/corchetes sueltos del scrapeo: 'por | aptitud mágica. ] Con...'
     dl = dl.replace(' | ', ' ').replace(' ] ', ' ').replace('] ', ' ')
     dl = _strip_trailing_junk(dl)
-    # Invocar Elemental: su bloque de stats termina '...superior al 3';
-    # el 3 final se confunde con numero de pagina, asi que va DESPUES de la
-    # limpieza de cola (y el 'r |' era ruido de tabla del scrapeo)
-    dl = dl.replace('(solo aire). r | PG: 30 + 10 por cada nivel del conjuro superior al',
-                    '(solo aire). PG: 30 + 10 por cada nivel del conjuro superior al 3')
     dl = dl.replace('  ', ' ').strip()
     return dl
 
@@ -205,10 +201,10 @@ def extract_nota(dl):
         r'restauras|restaurar|restauran|ganas|gana|vuelve a tener|curas?)'
         r'\s+(?:una cantidad de puntos de golpe igual a\s+)?'
         r'(\d+d\d+(?:\+\d+)?)\s*(?:más tu modificador'
-        r'|PG|puntos de golpe)?', dl)
+        r'|PG|puntos de golpe)?', dl, re.I)   # re.I: 'Recuperas...' al inicio de frase
     if cura:
         base = cura.group(1)
-        mod = 'más tu modificador' in cura.group(0)
+        mod = 'más tu modificador' in cura.group(0).lower()
         return base + ('+mod PG' if mod else ' PG')
     # --- utilidad: etiqueta derivada ---
     frase = re.split(r'[.,;]', dl)[0].strip().lower()

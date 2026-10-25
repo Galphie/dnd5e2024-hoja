@@ -16,14 +16,40 @@ Uso:
   python build.py --out RUTA       (destino alternativo, p. ej. tests/_out/)
   python build.py --no-verify      (solo pasos 1-4,6)
 """
-import argparse, os, shutil, subprocess, sys
+import argparse, os, re, shutil, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REF = os.path.join(HERE, "referencias")
 BACKUP = os.path.join(REF, "_ficha_backup_pool.html")
 DEFAULT_OUT = os.path.join(HERE, "resultado-hermes", "ficha_dnd_hermes.html")
-EMPTY_OUT = os.path.join(HERE, "resultado-hermes", "ficha_dnd_hermes_empty.html")
-INDEX_OUT = os.path.join(HERE, "resultado-hermes", "index.html")
+# index.html / ficha_dnd_hermes_empty.html se escriben junto a --out
+
+
+def vaciar_html(html):
+    """Hoja vacia (index.html) a partir de la ficha construida: quita datos de
+    personaje del HTML y activa FICHA_VACIA en el JS. Puro: str -> str."""
+    # 1. Title genérico
+    html = re.sub(r'<title>.*?</title>', '<title>Ficha D&D 2024</title>', html, flags=re.DOTALL)
+    # 2. Inputs - value=""
+    html = re.sub(r'(<input[^>]*type=([\'"])(?:text|number|hidden|email|password|search|tel|url)(\2)[^>]*value=)([\'"])[^\'"]*(\4)', r'\1""\5', html, flags=re.IGNORECASE)
+    html = re.sub(r'(<input[^>]*value=)([\'"])[^\'"]*(\2)', r'\1""\2', html, flags=re.IGNORECASE)
+    # 3. Checkboxes/radios - quitar checked
+    html = re.sub(r'\s+checked(?:\s*=\s*[\'"]checked[\'"])?', '', html, flags=re.IGNORECASE)
+    # 4. Textareas vacíos (evitar romper <script>)
+    # Primero textareas con contenido específico
+    html = re.sub(r'(<textarea[^>]*>)[^<]*(</textarea>)', r'\1\2', html, flags=re.IGNORECASE)
+    # Luego textareas ya vacíos
+    # 5. Selects - quitar selected
+    html = re.sub(r'\s+selected(?:\s*=\s*[\'"]selected[\'"])?', '', html, flags=re.IGNORECASE)
+    # 5b. El JS no genera datos de ejemplo (ataques, monedas, conjuros, bitacora...)
+    assert "var FICHA_VACIA=false;" in html, "ancla FICHA_VACIA"
+    html = html.replace("var FICHA_VACIA=false;", "var FICHA_VACIA=true;", 1)
+    # 6. Datos JS de ejemplo (bitácora)
+    # (sustitucion SIN barras: r"texto:\'\'" dejaba `texto:\'\'` en el JS -> SyntaxError)
+    html = re.sub(r'texto:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "texto:''", html, flags=re.IGNORECASE)
+    html = re.sub(r'titulo:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "titulo:''", html, flags=re.IGNORECASE)
+    return html
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
@@ -65,32 +91,10 @@ def main():
     print("[6/6] limpio. OK:", out)
     
     # Crear index.html desde la ficha YA CONSTRUIDA (con JS), limpiando solo datos de personaje
-    # Usamos el mismo método que create_empty_index.py pero sobre el out generado
-    import re
     with open(out, 'r', encoding='utf-8') as f:
-        html = f.read()
-    
-    # 1. Title genérico
-    html = re.sub(r'<title>.*?</title>', '<title>Ficha D&D 2024</title>', html, flags=re.DOTALL)
-    # 2. Inputs - value=""
-    html = re.sub(r'(<input[^>]*type=([\'"])(?:text|number|hidden|email|password|search|tel|url)(\2)[^>]*value=)([\'"])[^\'"]*(\4)', r'\1""\5', html, flags=re.IGNORECASE)
-    html = re.sub(r'(<input[^>]*value=)([\'"])[^\'"]*(\2)', r'\1""\2', html, flags=re.IGNORECASE)
-    # 3. Checkboxes/radios - quitar checked
-    html = re.sub(r'\s+checked(?:\s*=\s*[\'"]checked[\'"])?', '', html, flags=re.IGNORECASE)
-    # 4. Textareas vacíos (evitar romper <script>)
-    # Primero textareas con contenido específico
-    html = re.sub(r'(<textarea[^>]*>)[^<]*(</textarea>)', r'\1\2', html, flags=re.IGNORECASE)
-    # Luego textareas ya vacíos
-    # 5. Selects - quitar selected
-    html = re.sub(r'\s+selected(?:\s*=\s*[\'"]selected[\'"])?', '', html, flags=re.IGNORECASE)
-    # 5b. El JS no genera datos de ejemplo (ataques, monedas, conjuros, bitacora...)
-    assert "var FICHA_VACIA=false;" in html, "ancla FICHA_VACIA"
-    html = html.replace("var FICHA_VACIA=false;", "var FICHA_VACIA=true;", 1)
-    # 6. Datos JS de ejemplo (bitácora)
-    # (sustitucion SIN barras: r"texto:\'\'" dejaba `texto:\'\'` en el JS -> SyntaxError)
-    html = re.sub(r'texto:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "texto:''", html, flags=re.IGNORECASE)
-    html = re.sub(r'titulo:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "titulo:''", html, flags=re.IGNORECASE)
-    
+        html = vaciar_html(f.read())
+
+    INDEX_OUT = os.path.join(os.path.dirname(out), "index.html")
     with open(INDEX_OUT, 'w', encoding='utf-8') as f:
         f.write(html)
     print("[7/7] index.html generado desde build (JS completo + datos vacíos) ->", INDEX_OUT)

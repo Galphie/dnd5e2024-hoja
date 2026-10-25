@@ -15,9 +15,6 @@ HTML = os.environ.get("FICHA_HTML", os.path.join(BASE, "resultado-hermes", "fich
 POOL = os.environ.get("POOL_JSON", os.path.join(BASE, "referencias", "spells_txt", "pool.json"))
 FICHA_WEB = os.environ.get("FICHA_WEB_JSON", os.path.join(BASE, "referencias", "spells_ficha_web.json"))
 
-html = open(HTML, encoding="utf-8").read()
-pool = [fix_entry(e) for e in json.load(open(POOL, encoding="utf-8"))]
-
 def norm(s):
     return "".join(c for c in unicodedata.normalize("NFD", (s or "").lower())
                    if unicodedata.category(c) != "Mn")
@@ -25,37 +22,52 @@ def norm(s):
 # --- 1) Construir SPELL_POOL con el formato REAL que usan spellRow/fill:
 # [nombre, niv, tm, rg, conc(0/1), ritual(0/1), material(0/1), nota, desc_corta]
 # Usar ficha_web.json para mapear nombres del pool a nombres oficiales PHB 2024
-ficha_web = json.load(open(FICHA_WEB, encoding="utf-8"))
-pool_to_official = {}
-for e in ficha_web:
-    pool_name = e.get("nombre_pool")
-    official_name = e.get("ficha")
-    if pool_name and official_name:
-        pool_to_official[norm(pool_name)] = official_name
+def build_rows(pool, ficha_web):
+    """pool (ya pasado por fix_entry) + ficha_web -> filas SPELL_POOL."""
+    pool_to_official = {}
+    for e in ficha_web:
+        pool_name = e.get("nombre_pool")
+        official_name = e.get("ficha")
+        if pool_name and official_name:
+            pool_to_official[norm(pool_name)] = official_name
 
-rows = []
-for e in pool:
-    pool_name = e.get("nombre")
-    pool_norm = norm(pool_name)
+    rows = []
+    for e in pool:
+        pool_name = e.get("nombre")
+        pool_norm = norm(pool_name)
     
-    # Si tiene nombre oficial, usarlo en SPELL_POOL; si no, title_es del pool
-    if pool_norm in pool_to_official:
-        nombre = pool_to_official[pool_norm]
-    else:
-        nombre = title_es(pool_name)
+        # Si tiene nombre oficial, usarlo en SPELL_POOL; si no, title_es del pool
+        if pool_norm in pool_to_official:
+            nombre = pool_to_official[pool_norm]
+        else:
+            nombre = title_es(pool_name)
     
-    if not nombre:
-        continue
-    conc = 1 if (e.get("du") or "").lower().startswith("concentrac") else 0
-    comp = e.get("comp") or ""
-    ritual = 1 if "R" in comp else 0
-    mat = 1 if e.get("M") else 0
-    rows.append([nombre, e.get("niv", 0), e.get("tm", "") or "",
-                 e.get("rg", "") or "", conc, ritual, mat,
-                 e.get("nota", "") or "", ""])
+        if not nombre:
+            continue
+        conc = 1 if (e.get("du") or "").lower().startswith("concentrac") else 0
+        comp = e.get("comp") or ""
+        ritual = 1 if "R" in comp else 0
+        mat = 1 if e.get("M") else 0
+        rows.append([nombre, e.get("niv", 0), e.get("tm", "") or "",
+                     e.get("rg", "") or "", conc, ritual, mat,
+                     e.get("nota", "") or "", ""])
+    return rows
 
-pool_js = "var SPELL_POOL=" + json.dumps(rows, ensure_ascii=True) + ";"
-print("SPELL_POOL items:", len(rows))
 
-open(HTML + ".pool_tmp", "w", encoding="utf-8").write(pool_js)
-print("pool_js bytes:", len(pool_js.encode("utf-8")))
+def pool_js_de(rows):
+    return "var SPELL_POOL=" + json.dumps(rows, ensure_ascii=True) + ";"
+
+
+def main():
+    pool = [fix_entry(e) for e in json.load(open(POOL, encoding="utf-8"))]
+    ficha_web = json.load(open(FICHA_WEB, encoding="utf-8"))
+    rows = build_rows(pool, ficha_web)
+    pool_js = pool_js_de(rows)
+    print("SPELL_POOL items:", len(rows))
+
+    open(HTML + ".pool_tmp", "w", encoding="utf-8").write(pool_js)
+    print("pool_js bytes:", len(pool_js.encode("utf-8")))
+
+
+if __name__ == "__main__":
+    main()

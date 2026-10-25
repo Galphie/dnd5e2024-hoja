@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install playwright pytest
-          playwright install chromium
+          playwright install --with-deps chromium
 
       - name: Build project
         run: python build.py
@@ -38,6 +38,12 @@ jobs:
           test -f resultado-hermes/index.html && echo "index.html OK"
           test -f resultado-hermes/ficha_dnd_hermes.html && echo "ficha_dnd_hermes.html OK"
           test -f resultado-hermes/ficha_dnd_hermes_empty.html && echo "ficha_dnd_hermes_empty.html OK"
+
+      # Si falla algun test no se publica nada (deploy-pages depende de este job)
+      - name: Run tests
+        run: |
+          python -m pytest tests/test_unit_py.py tests/test_unit_js.py \
+            tests/test_pipeline.py tests/test_smoke.py -v
 
       - name: Prepare release artifacts
         run: |

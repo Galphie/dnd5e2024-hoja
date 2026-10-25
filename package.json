@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "python build.py",
-    "test": "python -m pytest tests/ -v",
+    "test": "python -m pytest tests/test_unit_py.py tests/test_unit_js.py tests/test_pipeline.py tests/test_smoke.py -v",
     "serve": "cd resultado-hermes && python -m http.server 8080"
   },
   "keywords": ["dnd", "character-sheet", "pwa", "offline-first"],
