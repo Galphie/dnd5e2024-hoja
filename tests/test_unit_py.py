@@ -291,6 +291,18 @@ class TestAssemble:
         pkg = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
         assert _assemble.VERSION == pkg["version"]
 
+    def test_sw_con_version_sustituye_y_es_determinista(self):
+        sw = (ROOT / "referencias" / "sw.js").read_text(encoding="utf-8")
+        assert sw.count("__BUILD__") == 1, "el placeholder solo debe ir en CACHE_NAME"
+        a = _assemble.sw_con_version(sw, "<html>1</html>")
+        assert "__BUILD__" not in a
+        assert a == _assemble.sw_con_version(sw, "<html>1</html>")
+        assert a != _assemble.sw_con_version(sw, "<html>2</html>")
+
+    def test_sw_con_version_sin_placeholder(self):
+        with pytest.raises(AssertionError):
+            _assemble.sw_con_version("const CACHE_NAME = 'x';", "<html/>")
+
 
 # ======================================================================
 # _verify_pool

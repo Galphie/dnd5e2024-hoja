@@ -9,7 +9,7 @@ Uso:  python _assemble.py            (usa ruta por defecto)
 Requiere: _build_pool.py y _build_info.py ejecutados antes (generan .pool_tmp/.info_tmp).
 Idempotente: si el HTML ya tiene un parche aplicado, lo salta sin romper.
 """
-import json, os, re, sys, shutil
+import hashlib, json, os, re, sys, shutil
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -216,6 +216,15 @@ def inject_version(html_text):
     return html_text
 
 
+def sw_con_version(sw_text, html_text):
+    """Sustituye __BUILD__ en sw.js por un hash del HTML: cada build distinto
+    produce un sw.js distinto (el navegador instala el SW nuevo y renueva la
+    cache) y el mismo build produce el mismo sw.js (build determinista)."""
+    assert "__BUILD__" in sw_text, "ancla __BUILD__ en sw.js"
+    h = hashlib.sha1(html_text.encode("utf-8")).hexdigest()[:12]
+    return sw_text.replace("__BUILD__", h)
+
+
 def main():
     HTML = os.environ.get("FICHA_HTML", os.path.join(BASE, "resultado-hermes", "ficha_dnd_hermes.html"))
     OUT_DIR = os.path.dirname(HTML)
@@ -235,7 +244,11 @@ def main():
     for asset in ("manifest.json", "sw.js"):
         src = os.path.join(BASE, "referencias", asset)
         dst = os.path.join(OUT_DIR, asset)
-        if os.path.exists(src):
+        if os.path.exists(src) and asset == "sw.js":
+            sw = sw_con_version(open(src, encoding="utf-8").read(), html)
+            open(dst, "w", encoding="utf-8", newline="\n").write(sw)
+            print(f"[OK] {asset} -> {dst}")
+        elif os.path.exists(src):
             shutil.copy2(src, dst)
             print(f"[OK] {asset} -> {dst}")
         else:

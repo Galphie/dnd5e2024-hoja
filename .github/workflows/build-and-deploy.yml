@@ -43,7 +43,7 @@ jobs:
       - name: Run tests
         run: |
           python -m pytest tests/test_unit_py.py tests/test_unit_js.py \
-            tests/test_pipeline.py tests/test_smoke.py -v
+            tests/test_pipeline.py tests/test_smoke.py tests/test_sw.py -v
 
       - name: Prepare release artifacts
         run: |

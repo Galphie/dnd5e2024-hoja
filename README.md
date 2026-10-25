@@ -49,13 +49,14 @@ no tienen descripción en pool.json (estado conocido).
 ```
 pip install pytest playwright
 playwright install chromium
-npm test        # o: python -m pytest tests/test_unit_py.py tests/test_unit_js.py tests/test_pipeline.py tests/test_smoke.py
+npm test        # o: python -m pytest tests/test_unit_py.py tests/test_unit_js.py tests/test_pipeline.py tests/test_smoke.py tests/test_sw.py
 ```
 
 - `test_unit_py.py` — funciones Python del build.
 - `test_unit_js.py` — funciones JS de la ficha (Playwright).
 - `test_pipeline.py` — build completo, invariantes y determinismo.
 - `test_smoke.py` — E2E básico.
+- `test_sw.py` — service worker: offline y actualización tras un despliegue.
 
 El CI (`.github/workflows/build-and-deploy.yml`) ejecuta la suite antes de
 publicar en GitHub Pages; si falla un test, no se despliega.
