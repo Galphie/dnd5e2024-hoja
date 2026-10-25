@@ -693,14 +693,20 @@ showPage(1);
   document.getElementById('mb').innerHTML=h;
 })();
 
-/* ---------- Persistencia (paginas 1 y 2) ---------- */
-var LSKEY='hermes_ficha_v1';
+/* ---------- Persistencia ----------
+   v2: snapshot completo (mismo formato que Exportar) en LSKEY2.
+   v1 (array posicional de #pg1/#pg2 .E) solo se lee para migrar. */
+var LSKEY='hermes_ficha_v1',LSKEY2='hermes_ficha_v2';
+/* build.py lo pone a true en index.html: sin datos de ejemplo */
+var FICHA_VACIA=false;
+var FICHA_ID=null;
+function newId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
 function staticFields(){return qa('#pg1 .E, #pg2 .E');}
-function capStatic(){return staticFields().map(function(f){return f.type==='checkbox'?(f.checked?1:0):f.value;});}
 function resStatic(a){staticFields().forEach(function(f,i){if(a[i]!=null){if(f.type==='checkbox')f.checked=!!a[i];else f.value=a[i];}});}
-var _st;
-function saveStatic(){clearTimeout(_st);_st=setTimeout(function(){try{localStorage.setItem(LSKEY,JSON.stringify(capStatic()));}catch(e){}},300);}
-function loadStatic(){try{var v=JSON.parse(localStorage.getItem(LSKEY));if(v)resStatic(v);}catch(e){}}
+var _st=null;
+function saveNow(){clearTimeout(_st);_st=null;try{localStorage.setItem(LSKEY2,JSON.stringify(recolectar()));}catch(e){}}
+function saveStatic(){clearTimeout(_st);_st=setTimeout(saveNow,300);}
+window.addEventListener('pagehide',function(){if(_st)saveNow();});
 
 /* ---------- Recalculo ---------- */
 function modOf(n){n=parseInt(n,10);if(isNaN(n))return 0;return Math.floor((n-10)/2);}
@@ -732,8 +738,9 @@ function recalc(){
 }
 window.recalc=recalc;
 
-document.addEventListener('input',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('E')){recalc();saveStatic();}});
-document.addEventListener('change',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('E')){recalc();saveStatic();}});
+function isField(t){var c=t&&t.classList;return !!c&&(c.contains('E')||c.contains('rh'));}
+document.addEventListener('input',function(e){if(isField(e.target)){recalc();saveStatic();}});
+document.addEventListener('change',function(e){if(isField(e.target)){recalc();saveStatic();}});
 
 /* ---------- Bloques dinamicos (datos iniciales) ---------- */
 function buildSlots(){
@@ -742,7 +749,7 @@ function buildSlots(){
   cols.forEach(function(col){
     html+='<div class="slot"><div class="hd"><span>Totales</span><span>Gastados</span></div>';
     col.forEach(function(lv){
-      var tot=(lv===1)?4:(lv===2?3:0);
+      var tot=FICHA_VACIA?0:((lv===1)?4:(lv===2?3:0));
       var nDots=(lv<=2)?4:(lv<=6)?3:(lv===8||lv===9)?1:2;
       html+='<div class="r"><span class="rl">NIVEL '+lv+'</span><span class="tl"><input class="E" value="'+(tot||'')+'"></span><span class="ds">';
       for(var k=0;k<nDots;k++)html+='<input type="checkbox" class="dslot E">';
@@ -757,16 +764,18 @@ function buildAtk(){
   var rows=[['Rayo de Fuego','+6','2d10 fuego','Truco'],['Rayo Abrasador','+6','2d6x3 fuego','Niv2'],
     ['Orbe Cromatico','+6','3d8 fuego','Niv1'],['Llamarada','CD14 DES','3d6 fuego','cono'],
     ['Baston enano','+2','1d6 cont','Mele'],['','','',''],['','','',''],['','','','']];
+  if(FICHA_VACIA)rows=rows.map(function(){return ['','','',''];});
   el.innerHTML=rows.map(function(r){return '<div class="r"><input class="E" value="'+r[0]+'"><input class="E" value="'+r[1]+'"><input class="E" value="'+r[2]+'"><input class="E" value="'+r[3]+'"></div>';}).join('');
 }
 function buildEspe(){
   var el=document.getElementById('especRows');if(!el)return;
   var v='Resistencia enana: veneno\nVision oscuridad: 36 m\nResiliencia enana\nAguante enano: +1 PG/nivel\nAfinidad piedra: Tremorsense\nVelocidad: 30 pies';
-  el.value=v;
+  el.value=FICHA_VACIA?'':v;
 }
 function buildCoins(){
   var el=document.getElementById('coinrows');if(!el)return;
   var c=[['PC',''],['PP','12'],['PE',''],['PO','1475'],['PPT','8']];
+  if(FICHA_VACIA)c=c.map(function(x){return [x[0],''];});
   el.innerHTML=c.map(function(x){return '<div class="coin-cell"><span class="coin-lb">'+x[0]+'</span><span class="coin-ar">^</span><div class="coin-box"><input class="E" value="'+x[1]+'"></div><span class="coin-ar">v</span></div>';}).join('');
 }
 
@@ -820,12 +829,36 @@ function spellRow(s){
     '<button type="button" class="infoX" title="Ver descripcion">(i)</button>'+
     '<button type="button" class="clearX" title="Vaciar fila">x</button></div>';
 }
-function buildSpells(){
-  var el=document.getElementById('spellrows');if(!el)return;
-  var html='';
-  SPELLS.forEach(function(s){html+=spellRow(s);});
-
+/* Filas fijas de la tabla: las que caben en el bloque .spell (885px / 23px) */
+var SPELL_ROWS=35,SPELL_BLANK=['','','','',0,0,0,''];
+function spellEmpty(s){
+  if(!s)return true;
+  return ['nivel','nombre','tiempo','rango','notas'].every(function(k){return s[k]==null||String(s[k]).trim()==='';})&&!s.c&&!s.r&&!s.m;
+}
+/* Rehace la tabla a partir de una lista {nivel,nombre,...}. Quita filas vacias
+   del final; si aun no cabe, quita huecos intermedios. Nunca descarta conjuros:
+   si hay mas de SPELL_ROWS devuelve cuantos hay (las filas extra desbordan). */
+function setSpells(list){
+  var el=document.getElementById('spellrows');if(!el)return 0;
+  list=(list||[]).slice();
+  while(list.length&&spellEmpty(list[list.length-1]))list.pop();
+  var extra=list.length-SPELL_ROWS;
+  if(extra>0)list=list.filter(function(s){if(extra>0&&spellEmpty(s)){extra--;return false;}return true;});
+  var n=Math.max(SPELL_ROWS,list.length),html='';
+  for(var i=0;i<n;i++)html+=spellRow(SPELL_BLANK);
   el.innerHTML=html;
+  qa('.srow',el).forEach(function(r,k){var s=list[k];if(!s||spellEmpty(s))return;
+    function str(v){return v==null?'':String(v);}
+    r.querySelector('.nv').value=str(s.nivel);r.querySelector('.nm').value=str(s.nombre);
+    r.querySelector('.tm').value=str(s.tiempo);r.querySelector('.rg').value=str(s.rango);
+    var cs=r.querySelectorAll('.rh');cs[0].checked=!!s.c;cs[1].checked=!!s.r;cs[2].checked=!!s.m;
+    r.querySelector('.nt').value=str(s.notas);});
+  return list.length>SPELL_ROWS?list.length:0;
+}
+function buildSpells(){
+  setSpells(FICHA_VACIA?[]:SPELLS.map(function(s){
+    return {nivel:(s[1]===0)?'Truco':String(s[1]),nombre:s[0],tiempo:s[2],rango:s[3],c:!!s[4],r:!!s[5],m:!!s[6],notas:s[7]};
+  }));
 }
 
 /* ---------- Conjuros: ordenar por nivel ---------- */
@@ -934,7 +967,7 @@ document.getElementById('spellrows').addEventListener('click',function(e){
   function data(){return qa('.ses-card',list).map(function(c){
     return {fecha:q('.sf',c).value,lugar:q('.sl',c).value,titulo:q('.ses-ti',c).value,texto:q('.ses-te',c).value};
   });}
-  function save(){try{localStorage.setItem(SESKEY,JSON.stringify(data()));}catch(e){}}
+  function save(){try{localStorage.setItem(SESKEY,JSON.stringify(data()));}catch(e){}saveStatic();}
   function renumber(){qa('.ses-num',list).forEach(function(e,i){e.textContent='SESION '+(i+1);});}
   function mk(d){
     d=d||{};var c=document.createElement('div');c.className='ses-card';
@@ -953,7 +986,7 @@ document.getElementById('spellrows').addEventListener('click',function(e){
   document.getElementById('btn-addses').addEventListener('click',function(){add();});
   window.__sesData=data;
   var raw=null;try{raw=JSON.parse(localStorage.getItem(SESKEY));}catch(e){}
-  if(!raw)raw=[{fecha:'Previo',lugar:'Reunion del gremio',titulo:'La proclamacion del Primer Ministro Draconico',
+  if(!raw)raw=FICHA_VACIA?[]:[{fecha:'Previo',lugar:'Reunion del gremio',titulo:'La proclamacion del Primer Ministro Draconico',
     texto:'Nake Nicky se declara «Primer Ministro Draconico de Todos los Enanos» en el gremio de herreros. El clan lo expulsa. Convencido de ser un dragon rojo en forma intermedia, parte en busca del dragon rojo ancestral.'},
     {fecha:'06/06/2026',lugar:'Casa de los Patrick',titulo:'!Carino, no encuentro el cadaver de los ninos!',
     texto:'Exploramos la casa vacia. Senales de lucha del clan de Elektra. Comunicacion con el espiritu de la madre. Llevamos los restos y ceso la maldicion. Guardapelo, llave y escrituras. 10.000 po para el grupo.'}];
@@ -970,7 +1003,7 @@ document.getElementById('spellrows').addEventListener('click',function(e){
       fue:v('.cf-fue'),des:v('.cf-des'),con:v('.cf-con'),int:v('.cf-int'),sab:v('.cf-sab'),car:v('.cf-car'),
       ataques:v('.cf-ataques'),rasgos:v('.cf-rasgos'),notas:v('.cf-notas')};
   });}
-  function save(){try{localStorage.setItem(COMPKEY,JSON.stringify(data()));}catch(e){}}
+  function save(){try{localStorage.setItem(COMPKEY,JSON.stringify(data()));}catch(e){}saveStatic();}
   function emptyState(){list.classList.toggle('has-empty',!list.querySelector('.comp-card'));}
   function mk(d){
     d=d||{};var c=document.createElement('div');c.className='comp-card';
@@ -1000,32 +1033,52 @@ document.getElementById('spellrows').addEventListener('click',function(e){
   document.getElementById('btn-addcomp').addEventListener('click',function(){add();});
   window.__compData=data;
   var raw=null;try{raw=JSON.parse(localStorage.getItem(COMPKEY));}catch(e){}
-  if(!raw)raw=[{nombre:'Cria de dragon (ejemplo)',tipo:'Dragon',tamano:'Pequeno',origen:'Invocacion',
+  if(!raw)raw=FICHA_VACIA?[]:[{nombre:'Cria de dragon (ejemplo)',tipo:'Dragon',tamano:'Pequeno',origen:'Invocacion',
     ca:'13',pg:'12 / 12',vel:'9 m / vuelo 18 m',ini:'+2',fue:'+1',des:'+2',con:'+1',int:'-2',sab:'+0',car:'+0',
     ataques:'Mordisco: +4, alcance 1,5 m, 1d6+1 perforante.',rasgos:'Vision en la oscuridad 18 m. Resistencia al fuego.',
     notas:'Ejemplo: editalo o eliminalo.'}];
   raw.forEach(add);
 })();
 
-/* ---------- Guardar HTML (horneado) ---------- */
+/* ---------- Guardar HTML (horneado) ----------
+   Los datos viajan en un script application/json con id="ficha-data" y se
+   aplican al abrir el fichero (ver loadInitial). Cada guardado estrena _id. */
+function slugNombre(){
+  var n=gv('[data-k="nombre"]').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return n.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'')||'ficha';
+}
+function jsonInScript(d){
+  return JSON.stringify(d).replace(/[<>&\u007f-\uffff]/g,function(c){return '\\u'+('000'+c.charCodeAt(0).toString(16)).slice(-4);});
+}
+function descargar(contenido,tipo,nombre){
+  var blob=new Blob([contenido],{type:tipo});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=nombre;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+}
 document.getElementById('btn-guardar').addEventListener('click',function(){
-  if(window.recalc)recalc();
-  qa('.E, #bitaList input, #bitaList textarea, #compList input, #compList textarea').forEach(function(f){
+  FICHA_ID=newId();
+  var d=recolectar();
+  try{localStorage.setItem(LSKEY2,JSON.stringify(d));}catch(e){}
+  qa('.E, .rh, #bitaList input, #bitaList textarea, #compList input, #compList textarea').forEach(function(f){
     if(f.type==='checkbox'){if(f.checked)f.setAttribute('checked','checked');else f.removeAttribute('checked');}
     else if(f.tagName==='TEXTAREA'){f.textContent=f.value;}
     else{f.setAttribute('value',f.value==null?'':f.value);}
   });
-  var doc='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-  var blob=new Blob([doc],{type:'text/html;charset=utf-8'});
-  var url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='ficha_nake_nicky.html';document.body.appendChild(a);a.click();a.remove();
-  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  var root=document.documentElement.cloneNode(true);
+  qa('#ficha-data, #bitaList .ses-card, #compList .comp-card',root).forEach(function(x){x.remove();});
+  qa('.toast-ov.open, .mdl-ov.open',root).forEach(function(x){x.classList.remove('open');});
+  qa('#acbox, #tip',root).forEach(function(x){x.style.display='none';});
+  var ds=document.createElement('script');ds.type='application/json';ds.id='ficha-data';
+  ds.textContent=jsonInScript(d);
+  root.querySelector('head').appendChild(ds);
+  descargar('<!DOCTYPE html>\n'+root.outerHTML,'text/html;charset=utf-8','ficha_'+slugNombre()+'.html');
 });
 
 /* ---------- Exportar / Importar JSON ---------- */
 function recolectar(){
   if(window.recalc)recalc();
-  var d={_tipo:'ficha-dnd2024',_fecha:new Date().toISOString()};
+  var d={_tipo:'ficha-dnd2024',_fecha:new Date().toISOString(),_id:FICHA_ID};
   d.identidad={nombre:gv('[data-k="nombre"]'),trasfondo:gv('[data-k="trasfondo"]'),clase:gv('[data-k="clase"]'),
     especie:gv('[data-k="especie"]'),subclase:gv('[data-k="subclase"]'),nivel:gv('#f-nivel'),px:gv('.nvl .px input'),
     aptitudEstadistica:q('#apt-stat')?.value||'INT'};
@@ -1033,7 +1086,8 @@ function recolectar(){
   d.estado={iniciativa:sts[0]?sts[0].value:'',velocidad:sts[1]?sts[1].value:'',tamano:sts[2]?sts[2].value:'',
     percepcion:sts[3]?sts[3].value:'',ca:gv('#f-ca'),competencia:gv('#f-prof'),
     pg:qa('.hp input').map(function(i){return i.value;}),dados:qa('.dg input').map(function(i){return i.value;}),
-    inspiracion:!!(q('.inspd')||{}).checked};
+    inspiracion:!!(q('.inspd')||{}).checked,escudo:!!(q('.esc-d')||{}).checked,
+    salvMuerte:qa('.sv .dslot').map(function(c){return c.checked;})};
   d.caracteristicas={};
   qa('.ab[data-ab]').forEach(function(b){var s=b.querySelector('.sc');d.caracteristicas[b.getAttribute('data-ab')]=s?s.value:'';});
   d.habilidades={};
@@ -1046,6 +1100,7 @@ function recolectar(){
     return {nivel:r.querySelector('.nv').value,nombre:r.querySelector('.nm').value,tiempo:r.querySelector('.tm').value,
       rango:r.querySelector('.rg').value,c:r.querySelectorAll('.rh')[0].checked,r:r.querySelectorAll('.rh')[1].checked,
       m:r.querySelectorAll('.rh')[2].checked,notas:r.querySelector('.nt').value};});
+  while(d.conjuros.length&&spellEmpty(d.conjuros[d.conjuros.length-1]))d.conjuros.pop();
   d.espacios=qa('#slotgrid .r').map(function(r){var t=r.querySelector('.tl input');
     return {nivel:r.querySelector('.rl').textContent.trim(),total:t?t.value:'',
       gastados:qa('.dslot',r).map(function(c){return c.checked;})};});
@@ -1066,6 +1121,8 @@ function recolectar(){
     /* Dotes (.dt-l textarea) */
     var dt=q('.dt-l textarea');
     d.dotes=dt?dt.value:'';
+    d.sintonizacion=qa('.atun-r').map(function(r){var cb=r.querySelector('.d'),ln=r.querySelector('.line');
+      return {check:cb?cb.checked:false,texto:ln?ln.value:''};});
     d.bitacora=(window.__sesData)?window.__sesData():[];
     d.companeros=(window.__compData)?window.__compData():[];
     return d;
@@ -1085,21 +1142,20 @@ function aplicar(d){
   if(e.pg)qa('.hp input').forEach(function(i,k){if(e.pg[k]!=null)i.value=e.pg[k];});
   if(e.dados)qa('.dg input').forEach(function(i,k){if(e.dados[k]!=null)i.value=e.dados[k];});
   var ins=q('.inspd');if(ins&&e.inspiracion!=null)ins.checked=!!e.inspiracion;
+  var esc=q('.esc-d');if(esc&&e.escudo!=null)esc.checked=!!e.escudo;
   if(e.salvMuerte)qa('.sv .dslot').forEach(function(i,k){if(e.salvMuerte[k]!=null)i.checked=!!e.salvMuerte[k];});
   var ca=d.caracteristicas||{};
   qa('.ab[data-ab]').forEach(function(b){var ab=b.getAttribute('data-ab'),s=b.querySelector('.sc');
     if(s&&ca[ab]!=null)s.value=ca[ab];});
-  var ha=d.habilidades||{};
+  /* "competencias" = nombre alternativo (formato REF) de "habilidades" */
+  var ha=d.habilidades||d.competencias||{};
   qa('.ab[data-ab]').forEach(function(b){var ab=b.getAttribute('data-ab');
     qa('.sk',b).forEach(function(sk){var nm=sk.querySelector('.nm'),cb=sk.querySelector('.dot');
       if(nm&&cb){var k=ab+':'+nm.textContent.trim();if(ha[k]!=null)cb.checked=!!ha[k];}});});
   if(d.ataques)qa('#atkrows .r').forEach(function(r,k){var a=d.ataques[k];if(!a)return;var i=r.querySelectorAll('input');
     if(a.nombre!=null)i[0].value=a.nombre;if(a.bonif!=null)i[1].value=a.bonif;if(a.dano!=null)i[2].value=a.dano;if(a.notas!=null)i[3].value=a.notas;});
-  if(d.conjuros)qa('#spellrows .srow').forEach(function(r,k){var s=d.conjuros[k];if(!s)return;
-    r.querySelector('.nv').value=s.nivel||'';r.querySelector('.nm').value=s.nombre||'';
-    r.querySelector('.tm').value=s.tiempo||'';r.querySelector('.rg').value=s.rango||'';
-    var cs=r.querySelectorAll('.rh');if(s.c!=null)cs[0].checked=!!s.c;if(s.r!=null)cs[1].checked=!!s.r;if(s.m!=null)cs[2].checked=!!s.m;
-    r.querySelector('.nt').value=s.notas||'';});
+  var sobran=0;
+  if(Array.isArray(d.conjuros))sobran=setSpells(d.conjuros);
   if(d.espacios)qa('#slotgrid .r').forEach(function(r,k){var sp=d.espacios[k];if(!sp)return;
     var t=r.querySelector('.tl input');if(t&&sp.total!=null)t.value=sp.total;
     if(sp.gastados)qa('.dslot',r).forEach(function(c,j){if(sp.gastados[j]!=null)c.checked=!!sp.gastados[j];});});
@@ -1116,19 +1172,16 @@ function aplicar(d){
   }
   if(d.companeros){var cl=document.getElementById('compList');
     cl.querySelectorAll('.comp-card').forEach(function(c){c.remove();});
-    d.companeros.forEach(function(x){document.getElementById('btn-addcomp').click();var last=cl.querySelector('.comp-card:last-of-type')||cl.querySelector('.comp-card');
+    d.companeros.forEach(function(x){document.getElementById('btn-addcomp').click();var cards=cl.querySelectorAll('.comp-card'),last=cards[cards.length-1];
       var map={'.comp-nombre':x.nombre,'.w-tipo':x.tipo,'.w-tam':x.tamano,'.w-org':x.origen,'.cf-ca':x.ca,'.cf-pg':x.pg,
         '.cf-vel':x.vel,'.cf-ini':x.ini,'.cf-fue':x.fue,'.cf-des':x.des,'.cf-con':x.con,'.cf-int':x.int,'.cf-sab':x.sab,'.cf-car':x.car,
         '.cf-ataques':x.ataques,'.cf-rasgos':x.rasgos,'.cf-notas':x.notas};
       for(var k in map){var el=last?q(k,last):null;if(el)el.value=map[k]||'';}
     });
+    cl.classList.toggle('has-empty',!cl.querySelector('.comp-card'));
     try{localStorage.setItem('hermes_companeros_v1',JSON.stringify(d.companeros));}catch(err){}
   }
   /* ---- Compatibilidad con formato REF (Claude): claves alternativas ---- */
-  /* Competencias: aceptar "competencias" o "habilidades" */
-  if(d.competencias&&!d.habilidades){var c2=d.competencias;d.habilidades={};
-    qa('.ab[data-ab]').forEach(function(b){var ab=b.getAttribute('data-ab');
-      qa('.sk',b).forEach(function(sk){var nm=sk.querySelector('.nm');if(nm&&c2[ab+':'+nm.textContent.trim()]!=null)d.habilidades[ab+':'+nm.textContent.trim()]=!!c2[ab+':'+nm.textContent.trim()];});});}
   /* Entrenamiento: armaduras (checkboxes), armas y herramientas (textareas) */
   if(d.entrenamiento){
     var ena=d.entrenamiento.armaduras||{};
@@ -1140,7 +1193,7 @@ function aplicar(d){
   /* Rasgos de clase (textareas .cf-col) */
       if(d.rasgosClase)qa('#pg1 .cf-col textarea').forEach(function(t,k){if(d.rasgosClase[k]!=null)t.value=d.rasgosClase[k];});
       /* Rasgos de especie (#especRows textarea) */
-          if(d.rasgosEspecie){
+          if(d.rasgosEspecie!=null){
             var espec=q('#especRows');
             if(espec)espec.value=d.rasgosEspecie;
           }
@@ -1153,14 +1206,12 @@ function aplicar(d){
   var alg=(d.identidad&&d.identidad.alineamiento!=null)?d.identidad.alineamiento:(d.textos&&d.textos.alineamiento);
   if(alg!=null){var aIn=q('.algn input');if(aIn)aIn.value=alg;}
   if(window.recalc)recalc();saveStatic();
+  return sobran;
 }
+function avisoSobran(n){return n?' Ojo: hay '+n+' conjuros y la tabla tiene '+SPELL_ROWS+' filas; los sobrantes quedan fuera de la hoja.':'';}
 document.getElementById('btn-exp').addEventListener('click',function(){
   var d=recolectar();
-  var nom=((d.identidad&&d.identidad.nombre)||'ficha').trim().replace(/[^\w\-]+/g,'_')||'ficha';
-  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json;charset=utf-8'});
-  var url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='datos_'+nom+'.json';document.body.appendChild(a);a.click();a.remove();
-  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  descargar(JSON.stringify(d,null,2),'application/json;charset=utf-8','datos_'+slugNombre()+'.json');
 });
 document.getElementById('btn-imp').addEventListener('click',function(){
   var inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';
@@ -1170,7 +1221,9 @@ document.getElementById('btn-imp').addEventListener('click',function(){
     rd.onload=function(){
       var d;try{d=JSON.parse(rd.result);}catch(err){showToast('JSON no valido: '+err.message,'info');return;}
       showConfirm('Esto reemplazara los datos actuales. ?Continuar?',function(){
-        try{aplicar(d);showToast('Datos importados correctamente.','info');}catch(err){showToast('Error al importar: '+err.message,'info');}
+        /* contenido nuevo: deja de ser "cambios sin guardar" del HTML abierto */
+        FICHA_ID=newId();
+        try{var n=aplicar(d);showToast('Datos importados correctamente.'+avisoSobran(n),'info');}catch(err){showToast('Error al importar: '+err.message,'info');}
       });
     };
     rd.readAsText(f);
@@ -1181,6 +1234,7 @@ document.getElementById('btn-clear').addEventListener('click',function(){
   showConfirm('?Vaciar la hoja COMPLETAMENTE? Se perderan todos los datos.',vaciarHoja);
 });
 function vaciarHoja(){
+  FICHA_ID=newId();
   // Limpiar todos los inputs, textareas, selects
   document.querySelectorAll('input[type="text"], input[type="number"], input:not([type]), textarea, select').forEach(function(el){
     if(el.type==='checkbox' || el.type==='radio'){el.checked=false;}
@@ -1225,8 +1279,53 @@ function showConfirm(msg,onConfirm){
 }
 
 /* ---------- Inicializacion ---------- */
+/* Origen de los datos al abrir:
+   1) datos embebidos por "Guardar HTML" (#ficha-data); el localStorage solo
+      gana si es del mismo guardado (_id) y posterior (cambios sin guardar);
+   2) si no hay embebidos: snapshot v2 del localStorage;
+   3) si tampoco: migracion del formato v1 (array posicional). */
+function readEmbedded(){
+  var s=document.getElementById('ficha-data');if(!s)return null;
+  try{var v=JSON.parse(s.textContent);return (v&&typeof v==='object')?v:null;}catch(e){return null;}
+}
+function migrateLegacy(){
+  var v=null;try{v=JSON.parse(localStorage.getItem(LSKEY));}catch(e){}
+  if(!Array.isArray(v))return 0;
+  var el=document.getElementById('spellrows'),per=5;
+  var fixed=staticFields().length-qa('.srow',el).length*per,n=(v.length-fixed)/per;
+  var pool=(typeof SPELL_POOL!=='undefined')?SPELL_POOL:SPELLS,byName={};
+  /* v1 solo existio con 34 filas (SPELLS) o con el pool entero; otra cosa = estructura desconocida, no se toca */
+  if(n!==SPELLS.length&&n!==pool.length)return 0;
+  var html='';for(var i=0;i<n;i++)html+=spellRow(SPELL_BLANK);el.innerHTML=html;
+  resStatic(v);
+  /* C/R/M no se guardaban en v1: se recuperan del pool por nombre. Con 385
+     filas (build que volcaba el pool entero) la fila i intacta == pool[i]. */
+  pool.forEach(function(s){byName[s[0].toLowerCase()]=s;});
+  var poolEra=(n===pool.length);
+  qa('.srow',el).forEach(function(r,i){
+    var f=function(c){return r.querySelector(c).value;},nm=f('.nm');
+    var p=poolEra?pool[i]:null;
+    if(p&&nm===p[0]&&f('.nv')===((p[1]===0)?'Truco':String(p[1]))&&f('.tm')===p[2]&&f('.rg')===p[3]&&f('.nt')===''+p[7]){
+      r.querySelectorAll('input').forEach(function(x){if(x.type==='checkbox')x.checked=false;else x.value='';});return;}
+    var s=byName[nm.toLowerCase()];
+    if(s){var cs=r.querySelectorAll('.rh');cs[0].checked=!!s[4];cs[1].checked=!!s[5];cs[2].checked=!!s[6];}
+  });
+  return aplicar(recolectar());   /* compacta la tabla y guarda en v2 */
+}
+function loadInitial(){
+  var E=readEmbedded(),L=null;
+  try{L=JSON.parse(localStorage.getItem(LSKEY2));}catch(e){}
+  if(!L||typeof L!=='object')L=null;
+  var src=E||L;
+  if(E&&L&&L._id&&L._id===E._id&&String(L._fecha||'')>String(E._fecha||''))src=L;
+  FICHA_ID=(src&&src._id)||newId();
+  try{
+    var n=src?aplicar(src):migrateLegacy();
+    if(n)showToast(avisoSobran(n).trim(),'info');
+  }catch(e){if(window.console)console.error('Error cargando datos:',e);}
+}
 buildSlots();buildAtk();buildEspe();buildCoins();buildSpells();
-loadStatic();recalc();
+loadInitial();recalc();
 
 /* ---------- Conjuros: informacion (modal estilo aidedd) ---------- */
 (function(){

@@ -83,9 +83,13 @@ def main():
     # Luego textareas ya vacíos
     # 5. Selects - quitar selected
     html = re.sub(r'\s+selected(?:\s*=\s*[\'"]selected[\'"])?', '', html, flags=re.IGNORECASE)
+    # 5b. El JS no genera datos de ejemplo (ataques, monedas, conjuros, bitacora...)
+    assert "var FICHA_VACIA=false;" in html, "ancla FICHA_VACIA"
+    html = html.replace("var FICHA_VACIA=false;", "var FICHA_VACIA=true;", 1)
     # 6. Datos JS de ejemplo (bitácora)
-    html = re.sub(r'texto:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', r'texto:\'\'', html, flags=re.IGNORECASE)
-    html = re.sub(r'titulo:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', r'titulo:\'\'', html, flags=re.IGNORECASE)
+    # (sustitucion SIN barras: r"texto:\'\'" dejaba `texto:\'\'` en el JS -> SyntaxError)
+    html = re.sub(r'texto:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "texto:''", html, flags=re.IGNORECASE)
+    html = re.sub(r'titulo:[\'"][^\'"]*Nake Nicky[^\'"]*[\'"]', "titulo:''", html, flags=re.IGNORECASE)
     
     with open(INDEX_OUT, 'w', encoding='utf-8') as f:
         f.write(html)

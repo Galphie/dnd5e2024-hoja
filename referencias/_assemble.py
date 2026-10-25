@@ -91,11 +91,8 @@ html = apply(html, "max-height:240px", "max-height:360px", ".ac max-height 240->
 html = apply(html, "top+240>window.innerHeight-6)top=r.top-242",
              "top+360>window.innerHeight-6)top=r.top-362", "posicion .ac ajustado")
 
-# 7) buildSpells debe usar SPELL_POOL en vez de SPELLS
-html = apply(html,
-    "SPELLS.forEach(function(s){html+=spellRow(s);});",
-    "SPELL_POOL.forEach(function(s){html+=spellRow(s);});",
-    "buildSpells -> SPELL_POOL")
+# 7) (eliminado) buildSpells ya NO vuelca SPELL_POOL en la tabla: generaba 385
+#    filas que desbordaban la hoja. La tabla tiene SPELL_ROWS filas fijas.
 
 # 8) Mostrar puntos los 385 al abrir el buscador vacio (slice 200 -> 1000)
 html = apply(html, "list=list.slice(0,200);", "list=list.slice(0,1000);", "slice(0,200)->slice(0,1000)")
