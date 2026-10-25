@@ -3,57 +3,69 @@
 Ficha de personaje para D&D 2024 en un único HTML (canvas 816×1180, estética
 similar a aidedd.org), con buscador del compendio completo de conjuros del
 Manual 2024 (385), notas automáticas por conjuro, modal de descripción,
-botones de fila flotantes y tooltips de cabecera. Autosave en localStorage.
+botones de fila flotantes y tooltips de cabecera. Funciona offline (PWA).
 
-- `resultado-hermes/ficha_dnd_hermes.html` — la ficha final lista para usar.
-  Ábrela con doble clic (no necesita servidor).
-- `referencias/_ficha_backup_pool.html` — base pristina del build (sin los
-  parches; NO se edita a mano).
+## Uso
 
-## Build reproducible (una sola pasada)
+- **Guardar HTML**: descarga `ficha_<nombre>.html` con los datos embebidos;
+  al abrirlo muestra esos datos (o los cambios posteriores sin guardar de ese
+  mismo fichero, que quedan en localStorage).
+- **Exportar / Importar datos**: JSON `datos_<nombre>.json` con la ficha completa.
+- Autoguardado continuo en localStorage (`hermes_ficha_v2`).
+
+## Build
 
 ```
-python build.py                 # regenera resultado-hermes/ficha_dnd_hermes.html
-python build.py --out ruta      # destino alternativo (p. ej. tests/_out/)
+python build.py                 # -> resultado-hermes/
+python build.py --out ruta      # destino alternativo
 python build.py --no-verify     # omite la verificación de invariantes
 ```
 
-El build es determinista: hay un test que lo comprueba (el mismo comando dos
-veces produce bytes idénticos). Incluye TODOS los parches que antes había que
-aplicar a mano tras cada rebuild: `slice(0,1000)` (buscador con los 385),
-fill incondicional de notas, botones flotantes ⓘ/✕ y tooltips de cabecera.
+Genera, junto a la salida:
 
-## Pipeline interno
+- `ficha_dnd_hermes.html` — ficha con datos de ejemplo.
+- `index.html` — ficha vacía (la que se publica en GitHub Pages).
+- `ficha_dnd_hermes_empty.html` — copia de `index.html` para descarga.
+- `manifest.json`, `sw.js` — PWA.
+
+`resultado-hermes/` es salida del build: no guardes ahí fichas propias
+(van en `personajes/`, que no se sube al repo).
+
+### Pipeline
 
 1. `referencias/_build_pool.py` — SPELL_POOL (385) desde `spells_txt/pool.json`
-2. `referencias/_build_info.py` — SPELL_INFO (383) + slugs aidedd (34 verificados)
-3. `referencias/_assemble.py` — ensambla en el HTML + aplica los parches (idempotente)
-4. `referencias/_verify_pool.py` — invariantes (tags, 385/383, parches presentes)
+2. `referencias/_build_info.py` — SPELL_INFO (383) + slugs de aidedd
+3. `referencias/_assemble.py` — ensambla en la plantilla y aplica los parches
+4. `referencias/_verify_pool.py` — invariantes (tags, 385/383, parches)
 
-Pueden dirigirse a otro destino con la variable de entorno `FICHA_HTML`
-(usada por los tests).
+La plantilla es `referencias/_ficha_backup_pool.html`. El JS de la ficha es
+ASCII puro: los textos con tildes van como escapes `ó`.
+
+SPELL_INFO tiene 383 claves, no 385: "Brazos de Hadar" y "Círculo Mágico"
+no tienen descripción en pool.json (estado conocido).
 
 ## Tests
 
 ```
 pip install pytest playwright
 playwright install chromium
-python -m pytest tests/ -v
+npm test        # o: python -m pytest tests/test_unit_py.py tests/test_unit_js.py tests/test_pipeline.py tests/test_smoke.py
 ```
 
-- `tests/test_pipeline.py` — build completo + invariantes + determinismo (rápido, sin navegador).
-- `tests/test_smoke.py` — E2E con Playwright: carga, páginas, buscador, notas,
-  modal, botones, tooltips, autosave.
+- `test_unit_py.py` — funciones Python del build.
+- `test_unit_js.py` — funciones JS de la ficha (Playwright).
+- `test_pipeline.py` — build completo, invariantes y determinismo.
+- `test_smoke.py` — E2E básico.
 
-Nota: `SPELL_INFO` tiene 383 claves, no 385 — "Brazos de Hadar" y "Círculo
-Mágico" llegaron sin descripción en pool.json (estado conocido y verificado).
+El CI (`.github/workflows/build-and-deploy.yml`) ejecuta la suite antes de
+publicar en GitHub Pages; si falla un test, no se despliega.
 
 ## Estructura
 
 ```
-build.py                  orquestador (pasos 1-6)
-referencias/              scripts del build + datos fuente (pool.json, slugs)
-referencias/legacy/       scripts históricos de scraping (fuera del build)
-tests/                    pytest: pipeline + smoke E2E
-resultado-hermes/         ficha final generada
+build.py               orquestador del build
+referencias/           plantilla, scripts del build y datos de conjuros
+tests/                 suite pytest
+resultado-hermes/      salida del build (ignorado por git)
+personajes/            fichas y JSON propios (ignorado por git)
 ```
