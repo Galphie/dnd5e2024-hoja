@@ -285,10 +285,10 @@ body{
 .coin-box input{width:100%;height:100%;text-align:center;font-size:13px;font-weight:700;color:#1a1208;border:none;outline:none;background:transparent;font-family:inherit}
 
 /* ============ PÁGINA 3 ============ */
-.bita-head{text-align:center;padding:30px 0 4px}
-.bita-title{font-family:'Cinzel',Georgia,serif;font-size:27px;font-weight:900;color:#1a1208;letter-spacing:.06em}
-.bita-sub{text-align:center;font-family:'Alegreya Sans SC','Alegreya Sans',sans-serif;font-size:11px;color:#6b5837;letter-spacing:.08em;margin-top:3px;font-weight:700}
-.bita-rule{height:2px;background:#6b5837;opacity:.45;margin:10px 44px 0}
+.bita-head,.dm-head{text-align:center;padding:30px 0 4px}
+.bita-title,.dm-title{font-family:'Cinzel',Georgia,serif;font-size:27px;font-weight:900;color:#1a1208;letter-spacing:.06em}
+.bita-sub,.dm-sub{text-align:center;font-family:'Alegreya Sans SC','Alegreya Sans',sans-serif;font-size:11px;color:#6b5837;letter-spacing:.08em;margin-top:3px;font-weight:700}
+.bita-rule,.dm-rule{height:2px;background:#6b5837;opacity:.45;margin:10px 44px 0}
 .toolbar{display:flex;justify-content:center;gap:10px;margin:14px 0 18px}
 .tbtn{font-size:13px;font-weight:700;letter-spacing:.03em;padding:8px 22px;cursor:pointer;color:#f1ead7;background:#6b5837;border:1.5px solid #5a4a2e;border-radius:8px;font-family:inherit}
 .tbtn:hover{background:#5a4a2e}
@@ -420,6 +420,7 @@ nav button.io#btn-clear:hover{background:#9a3a2a;color:#fff;border-color:#7a2a1a
   <button data-nav="2">Conjuros</button>
   <button data-nav="3">Bitácora</button>
   <button data-nav="4">Compañeros</button>
+  <button data-nav="5">DM</button>
   <div class="sep"></div>
   <button class="save-btn" id="btn-guardar" type="button">💾 Guardar HTML</button>
   <button class="io" id="btn-exp" type="button">⬇ Exportar datos</button>
@@ -661,6 +662,18 @@ Flauta de «hueso de dragón»</textarea></div>
   <div class="comp-list has-empty" id="compList"><div class="comp-empty">Aún no hay compañeros. Pulsa «+ Añadir compañero».</div></div>
 </div>
 
+<!-- ================= PÁGINA 5 . DM ================= -->
+<div class="page page-auto" id="pg5">
+  <div class="corner c-tl"></div><div class="corner c-tr"></div>
+  <div class="corner c-bl"></div><div class="corner c-br"></div>
+  <div class="dm-head">
+  <div class="dm-title">DUNGEON MASTER</div>
+  <div class="dm-sub">HERRAMIENTAS DEL DIRECTOR DE JUEGO</div>
+  </div>
+  <div class="dm-rule"></div>
+  <div class="dm-body" id="dmBody"></div>
+</div>
+
 <div class="tip" id="tip"></div>
 <div class="mdl-ov" id="fotoOv"><div class="mdl foto-mdl" role="dialog" aria-modal="true" aria-label="Foto del personaje">
   <button type="button" class="mdl-x" id="fotoX" title="Cerrar">×</button>
@@ -695,9 +708,9 @@ function sv(s,v){var e=q(s);if(e&&v!=null)e.value=v}
 
 /* ---------- Navegacion ---------- */
 function showPage(n){
-  for(var i=1;i<=4;i++){var p=document.getElementById('pg'+i);if(p)p.classList.toggle('show',i===n);}
+  for(var i=1;i<=5;i++){var p=document.getElementById('pg'+i);if(p)p.classList.toggle('show',i===n);}
   qa('#nav [data-nav]').forEach(function(b){b.classList.toggle('on',parseInt(b.getAttribute('data-nav'),10)===n);});
-  q('#mb').classList.toggle('open',n!==1);
+  q('#mb').classList.toggle('open',n!==1&&n!==5);
 }
 var _nav=q('#nav');_nav.addEventListener('click',function(e){
   var t=e.target&&e.target.getAttribute&&e.target.getAttribute('data-nav');

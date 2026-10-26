@@ -62,7 +62,7 @@ class TestUtilidades:
     def test_q_qa(self, pg):
         assert ev(pg, "q('#pg1').id") == "pg1"
         assert ev(pg, "q('#noexiste')") is None
-        assert ev(pg, "Array.isArray(qa('.page')) && qa('.page').length") == 4
+        assert ev(pg, "Array.isArray(qa('.page')) && qa('.page').length") == 5
         assert ev(pg, "qa('.sk', q('.ab[data-ab=FUE]')).length") == 2
 
     def test_gv_sv(self, pg):
@@ -78,13 +78,13 @@ class TestUtilidades:
 # Navegacion
 # ======================================================================
 class TestShowPage:
-    @pytest.mark.parametrize("n", [1, 2, 3, 4])
+    @pytest.mark.parametrize("n", [1, 2, 3, 4, 5])
     def test_muestra_solo_una(self, pg, n):
         ev(pg, "n=>showPage(n)", n)
         visibles = ev(pg, "qa('.page.show').map(p=>p.id)")
         assert visibles == ["pg%d" % n]
         assert ev(pg, "q('#nav .on').getAttribute('data-nav')") == str(n)
-        assert ev(pg, "q('#mb').classList.contains('open')") == (n != 1)
+        assert ev(pg, "q('#mb').classList.contains('open')") == (n not in (1, 5))
 
     def test_click_nav(self, pg):
         pg.click('#nav [data-nav="3"]')
