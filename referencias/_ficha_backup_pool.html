@@ -251,6 +251,11 @@ body{
 .clearX:hover{background:rgba(154,58,42,.15)}
 .sp-btn{position:absolute;top:1px;right:10px;z-index:6;font-size:7.5px;cursor:pointer;color:#3a2c14;background:#e3d7b8;border:1px solid #6b5837;border-radius:5px;padding:2px 8px;font-weight:700;font-family:inherit}
 .sp-btn:hover{background:#f1ead7}
+/* Foto del personaje: botones junto a APARIENCIA */
+.apar-block .foto-add{left:6px;right:auto}
+.apar-block #btn-verfoto{right:6px}
+.sp-btn:disabled{opacity:.45;cursor:default;background:#e3d7b8}
+@media print{.apar-block .sp-btn{display:none!important}}
 
 /* Columna derecha P2 */
  .r2l{left:572px;width:214px}
@@ -376,6 +381,10 @@ nav button.io#btn-clear:hover{background:#9a3a2a;color:#fff;border-color:#7a2a1a
 .mdl-f{padding:8px 18px 12px;border-top:1px solid #c4b896;font-family:inherit;font-size:10px;color:#3a2c14;display:flex;flex-direction:column;gap:5px}
 .mdl-f .src{color:#3a2c14}
 .mdl-f a{color:#9a3a2a;text-decoration:none;font-family:inherit;font-size:10px;font-weight:700}
+.mdl.foto-mdl{max-width:640px;max-height:90vh}
+.foto-b{display:flex;flex-direction:column;align-items:center}
+.foto-b img{display:block;max-width:100%;max-height:68vh;object-fit:contain;border:1.5px solid #6b5837;border-radius:6px;background:#fbf6e7}
+.mdl-f.foto-f{flex-direction:row;justify-content:center;gap:10px}
 @media print{nav,.mb,.tip,.ac,.toast{display:none!important}.page{page-break-after:always}}
 
 /* ---------- Toast/Confirm Modal ---------- */
@@ -597,6 +606,9 @@ nav button.io#btn-clear:hover{background:#9a3a2a;color:#fff;border-color:#7a2a1a
   </div>
 
   <div class="blk r2l apar-block"><div class="lab">APARIENCIA</div>
+    <button class="sp-btn foto-add" id="btn-foto" type="button" title="Añadir o cambiar la foto del personaje">+ Foto</button>
+    <button class="sp-btn" id="btn-verfoto" type="button" title="Ver la foto del personaje" disabled>Ver foto</button>
+    <input type="file" id="fotoFile" accept="image/*" hidden>
     <div class="bx grbg"><textarea class="E">Enano bajo de barba rojiza trenzada. Cuernos postizos y túnica de escamas. Mirada de «dragón».</textarea></div></div>
 
   <div class="blk r2l hist-blk"><div class="lab">HISTORIA &amp; PERSONALIDAD</div>
@@ -650,6 +662,14 @@ Flauta de «hueso de dragón»</textarea></div>
 </div>
 
 <div class="tip" id="tip"></div>
+<div class="mdl-ov" id="fotoOv"><div class="mdl foto-mdl" role="dialog" aria-modal="true" aria-label="Foto del personaje">
+  <button type="button" class="mdl-x" id="fotoX" title="Cerrar">×</button>
+  <div class="mdl-b foto-b"><h1 id="fotoT"></h1><img id="fotoImg" alt="Foto del personaje"></div>
+  <div class="mdl-f foto-f">
+    <button type="button" class="toast-btn cancel" id="fotoCambiar">Cambiar foto</button>
+    <button type="button" class="toast-btn confirm" id="fotoQuitar">Quitar foto</button>
+  </div>
+</div></div>
 <div class="mdl-ov" id="mdlOv"><div class="mdl" role="dialog" aria-modal="true">
   <button type="button" class="mdl-x" id="mdlX" title="Cerrar">×</button>
   <div class="mdl-b">
@@ -1069,6 +1089,7 @@ document.getElementById('btn-guardar').addEventListener('click',function(){
   qa('#ficha-data, #bitaList .ses-card, #compList .comp-card',root).forEach(function(x){x.remove();});
   qa('.toast-ov.open, .mdl-ov.open',root).forEach(function(x){x.classList.remove('open');});
   qa('#acbox, #tip',root).forEach(function(x){x.style.display='none';});
+  qa('#fotoImg',root).forEach(function(x){x.removeAttribute('src');});
   var ds=document.createElement('script');ds.type='application/json';ds.id='ficha-data';
   ds.textContent=jsonInScript(d);
   root.querySelector('head').appendChild(ds);
@@ -1125,6 +1146,7 @@ function recolectar(){
       return {check:cb?cb.checked:false,texto:ln?ln.value:''};});
     d.bitacora=(window.__sesData)?window.__sesData():[];
     d.companeros=(window.__compData)?window.__compData():[];
+    d.foto=FOTO;
     return d;
   }
 function aplicar(d){
@@ -1206,6 +1228,8 @@ function aplicar(d){
   var alg=(d.identidad&&d.identidad.alineamiento!=null)?d.identidad.alineamiento:(d.textos&&d.textos.alineamiento);
   if(alg!=null){var aIn=q('.algn input');if(aIn)aIn.value=alg;}
   if(window.recalc)recalc();saveStatic();
+  /* foto: si el snapshot no trae una valida, la ficha queda sin foto */
+  setFoto(fotoValida(d.foto)?d.foto:'');
   return sobran;
 }
 function avisoSobran(n){return n?' Ojo: hay '+n+' conjuros y la tabla tiene '+SPELL_ROWS+' filas; los sobrantes quedan fuera de la hoja.':'';}
@@ -1246,6 +1270,7 @@ function vaciarHoja(){
   document.querySelectorAll('select').forEach(function(sel){sel.selectedIndex=0;});
   // Forzar recalculo
   if(window.recalc)recalc();
+  setFoto('');
   saveStatic();
 }
 
@@ -1324,6 +1349,65 @@ function loadInitial(){
     if(n)showToast(avisoSobran(n).trim(),'info');
   }catch(e){if(window.console)console.error('Error cargando datos:',e);}
 }
+/* ---------- Foto del personaje ----------
+   Se guarda como data URL (JPEG reducido a FOTO_MAX px) en d.foto, asi viaja
+   en localStorage, en Exportar/Importar y en el HTML guardado. */
+var FOTO='',FOTO_MAX=1024;
+function fotoValida(s){return typeof s==='string'&&/^data:image\/[a-z+.-]+;base64,/i.test(s);}
+function setFoto(src){
+  FOTO=src||'';
+  var b=q('#btn-verfoto');if(b)b.disabled=!FOTO;
+}
+function reducirFoto(file,cb){
+  var rd=new FileReader();
+  rd.onerror=function(){cb(null);};
+  rd.onload=function(){
+    var img=new Image();
+    img.onerror=function(){cb(null);};
+    img.onload=function(){
+      var s=Math.min(1,FOTO_MAX/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(img.naturalWidth*s));c.height=Math.max(1,Math.round(img.naturalHeight*s));
+      var ctx=c.getContext('2d');
+      ctx.fillStyle='#fbf6e7';ctx.fillRect(0,0,c.width,c.height);
+      ctx.drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.85));
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+(function(){
+  var fi=q('#fotoFile'),ov=q('#fotoOv'),img=q('#fotoImg');
+  function elegir(){fi.value='';fi.click();}
+  function mostrar(){
+    if(!FOTO)return;
+    img.src=FOTO;
+    q('#fotoT').textContent=gv('[data-k="nombre"]').trim()||'Personaje';
+    ov.classList.add('open');
+  }
+  function cerrar(){ov.classList.remove('open');img.removeAttribute('src');}
+  q('#btn-foto').addEventListener('click',elegir);
+  q('#fotoCambiar').addEventListener('click',elegir);
+  q('#btn-verfoto').addEventListener('click',mostrar);
+  fi.addEventListener('change',function(){
+    var f=fi.files&&fi.files[0];if(!f)return;
+    if(!/^image\//.test(f.type)){showToast('El fichero no es una imagen.','info');return;}
+    reducirFoto(f,function(src){
+      if(!src){showToast('No se ha podido leer la imagen.','info');return;}
+      var antes=FOTO;setFoto(src);
+      try{clearTimeout(_st);localStorage.setItem(LSKEY2,JSON.stringify(recolectar()));}
+      catch(e){setFoto(antes);saveNow();showToast('La imagen es demasiado grande para guardarla en el navegador.','info');return;}
+      mostrar();
+    });
+  });
+  q('#fotoQuitar').addEventListener('click',function(){
+    showConfirm('\u00bfQuitar la foto del personaje?',function(){setFoto('');saveNow();cerrar();});
+  });
+  q('#fotoX').addEventListener('click',cerrar);
+  ov.addEventListener('click',function(ev){if(ev.target===ov)cerrar();});
+  document.addEventListener('keydown',function(ev){if(ev.key==='Escape'&&ov.classList.contains('open'))cerrar();});
+})();
+
 buildSlots();buildAtk();buildEspe();buildCoins();buildSpells();
 loadInitial();recalc();
 

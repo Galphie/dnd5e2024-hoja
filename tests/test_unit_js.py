@@ -473,7 +473,7 @@ class TestCompaneros:
 # ======================================================================
 CLAVES = {"_tipo", "_fecha", "_id", "identidad", "estado", "caracteristicas", "habilidades", "ataques",
           "conjuros", "espacios", "textos", "monedas", "entrenamiento", "rasgosClase", "rasgosEspecie",
-          "dotes", "sintonizacion", "bitacora", "companeros"}
+          "dotes", "sintonizacion", "bitacora", "companeros", "foto"}
 
 
 class TestRecolectar:
@@ -767,3 +767,128 @@ class TestCarga:
         ev(pg, "v=>{localStorage.setItem('hermes_ficha_v1',JSON.stringify(v));sv('[data-k=nombre]','V2');saveNow();}", v1)
         pg.reload()
         assert ev(pg, "gv('[data-k=nombre]')") == "V2"
+
+
+# ======================================================================
+# Foto del personaje: fotoValida, setFoto, reducirFoto, botones y modal
+# ======================================================================
+class TestFoto:
+    FOTO = "data:image/jpeg;base64,/9j/AA=="
+
+    def _png(self, page, ruta, w, h):
+        import base64
+        url = ev(page, """([w,h])=>{var c=document.createElement('canvas');c.width=w;c.height=h;
+            var x=c.getContext('2d');x.fillStyle='#a33';x.fillRect(0,0,w,h);return c.toDataURL('image/png');}""", [w, h])
+        ruta.write_bytes(base64.b64decode(url.split(",", 1)[1]))
+        return ruta
+
+    def _subir(self, page, ruta):
+        ev(page, "showPage(2)")
+        with page.expect_file_chooser() as fc:
+            page.click("#btn-foto")
+        fc.value.set_files(str(ruta))
+        page.wait_for_selector("#fotoOv.open")
+
+    @pytest.mark.parametrize("v,ok", [(FOTO, True), ("data:image/png;base64,iVBO", True),
+                                      ("", False), (None, False), (5, False),
+                                      ("javascript:alert(1)", False), ("data:text/html;base64,PGI+", False),
+                                      ("https://x/y.jpg", False)])
+    def test_fotoValida(self, pg, v, ok):
+        assert ev(pg, "v=>fotoValida(v)", v) is ok
+
+    def test_inicial_sin_foto(self, pg):
+        assert ev(pg, "FOTO") == "" and ev(pg, "q('#btn-verfoto').disabled")
+        assert ev(pg, "recolectar().foto") == ""
+
+    def test_setFoto_habilita_ver(self, pg):
+        ev(pg, "v=>setFoto(v)", self.FOTO)
+        assert not ev(pg, "q('#btn-verfoto').disabled") and ev(pg, "recolectar().foto") == self.FOTO
+        ev(pg, "setFoto('')")
+        assert ev(pg, "q('#btn-verfoto').disabled")
+
+    def test_aplicar_con_y_sin_foto(self, pg):
+        ev(pg, "v=>aplicar({foto:v})", self.FOTO)
+        assert ev(pg, "FOTO") == self.FOTO
+        ev(pg, "aplicar({identidad:{nombre:'Otro'}})")  # JSON de otra ficha sin foto
+        assert ev(pg, "FOTO") == ""
+        ev(pg, "aplicar({foto:'javascript:alert(1)'})")
+        assert ev(pg, "FOTO") == ""
+
+    def test_subir_reduce_guarda_y_muestra(self, pg, tmp_path):
+        ev(pg, "sv('[data-k=nombre]','Ana Ruiz')")
+        self._subir(pg, self._png(pg, tmp_path / "f.png", 2000, 1000))
+        assert ev(pg, "FOTO.slice(0,23)") == "data:image/jpeg;base64,"
+        dims = ev(pg, "new Promise(r=>{var i=new Image();i.onload=()=>r([i.width,i.height]);i.src=FOTO})")
+        assert dims == [1024, 512]
+        assert ev(pg, "q('#fotoImg').src") == ev(pg, "FOTO")
+        assert pg.inner_text("#fotoT") == "Ana Ruiz"
+        assert json.loads(ev(pg, "localStorage.getItem('hermes_ficha_v2')"))["foto"] == ev(pg, "FOTO")
+        pg.reload()
+        assert ev(pg, "FOTO.slice(0,10)") == "data:image" and not ev(pg, "q('#btn-verfoto').disabled")
+
+    def test_imagen_pequena_no_se_amplia(self, pg, tmp_path):
+        self._subir(pg, self._png(pg, tmp_path / "p.png", 40, 30))
+        assert ev(pg, "new Promise(r=>{var i=new Image();i.onload=()=>r([i.width,i.height]);i.src=FOTO})") == [40, 30]
+
+    def test_fichero_no_imagen(self, pg, tmp_path):
+        f = tmp_path / "x.txt"
+        f.write_text("hola", encoding="utf-8")
+        ev(pg, "showPage(2)")
+        with pg.expect_file_chooser() as fc:
+            pg.click("#btn-foto")
+        fc.value.set_files(str(f))
+        pg.wait_for_selector("#toastOv.open")
+        assert "no es una imagen" in pg.inner_text("#toastMsg") and ev(pg, "FOTO") == ""
+
+    def test_modal_cerrar(self, pg):
+        ev(pg, "v=>setFoto(v)", self.FOTO)
+        ev(pg, "showPage(2)")
+        for cerrar in (lambda: pg.click("#fotoX"), lambda: pg.keyboard.press("Escape"),
+                       lambda: pg.mouse.click(5, 5)):
+            pg.click("#btn-verfoto")
+            assert ev(pg, "q('#fotoOv').classList.contains('open')")
+            cerrar()
+            assert not ev(pg, "q('#fotoOv').classList.contains('open')")
+            assert not ev(pg, "q('#fotoImg').hasAttribute('src')")
+
+    def test_ver_sin_foto_no_abre(self, pg):
+        ev(pg, "q('#btn-verfoto').click()")
+        assert not ev(pg, "q('#fotoOv').classList.contains('open')")
+
+    @pytest.mark.parametrize("boton,queda", [(".cancel", True), (".confirm", False)])
+    def test_quitar_foto(self, pg, boton, queda):
+        ev(pg, "v=>{setFoto(v);saveNow();}", self.FOTO)
+        ev(pg, "showPage(2)")
+        pg.click("#btn-verfoto")
+        pg.click("#fotoQuitar")
+        pg.click("#toastBtns " + boton)
+        assert (ev(pg, "FOTO") == self.FOTO) is queda
+        assert (json.loads(ev(pg, "localStorage.getItem('hermes_ficha_v2')"))["foto"] == self.FOTO) is queda
+
+    def test_vaciarHoja_quita_foto(self, pg):
+        ev(pg, "v=>setFoto(v)", self.FOTO)
+        ev(pg, "vaciarHoja()")
+        assert ev(pg, "FOTO") == "" and ev(pg, "q('#btn-verfoto').disabled")
+
+    def test_guardar_html_embebe_foto(self, pg, abrir, tmp_path):
+        ev(pg, "v=>setFoto(v)", self.FOTO)
+        ev(pg, "showPage(2)")
+        pg.click("#btn-verfoto")
+        pg.keyboard.press("Escape")
+        dest = tmp_path / "g.html"
+        descarga(pg, "#btn-guardar").save_as(dest)
+        html = dest.read_text(encoding="utf-8")
+        datos = json.loads(html.split('id="ficha-data">', 1)[1].split("</script>", 1)[0])
+        assert datos["foto"] == self.FOTO
+        assert html.count(self.FOTO) == 1  # solo en ficha-data, no en el <img> del modal
+        ev(pg, "localStorage.clear()")
+        assert ev(abrir(dest), "FOTO") == self.FOTO
+
+    def test_exportar_importar_foto(self, pg, tmp_path):
+        ev(pg, "v=>setFoto(v)", self.FOTO)
+        dest = tmp_path / "x.json"
+        descarga(pg, "#btn-exp").save_as(dest)
+        assert json.loads(dest.read_text(encoding="utf-8"))["foto"] == self.FOTO
+        ev(pg, "setFoto('')")
+        importar(pg, dest)
+        assert ev(pg, "FOTO") == self.FOTO
